@@ -11,7 +11,7 @@
 
     <groupId>net.imglib2</groupId>
     <artifactId>imglib2-roi-io</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.0</version>
 
     <name>ImgLib2 ROI-IO</name>
     <description>IO-Interfaces for Regions of interest in ImgLib2.</description>
@@ -40,7 +40,7 @@
     <scm>
         <connection>scm:git:git://github.com/imglib/imglib2-roi-io</connection>
         <developerConnection>scm:git:git@github.com:imglib/imglib2-roi-io</developerConnection>
-        <tag>HEAD</tag>
+        <tag>imglib2-roi-io-0.1.0</tag>
         <url>https://github.com/imglib/imglib2-roi-io</url>
     </scm>
     <issueManagement>
@@ -198,7 +198,7 @@
         </dependency>
 
         <!-- Other dependencies -->
-        <dependency><!---->
+        <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>bson</artifactId>
             <version>3.0.4</version>
