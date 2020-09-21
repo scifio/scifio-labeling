@@ -1,4 +1,4 @@
-package net.imglib2.io.labeling;
+package net.imglib2.roi.io.labeling;
 
 import net.imglib2.roi.labeling.LabelingMapping;
 import net.imglib2.type.logic.BoolType;
@@ -21,7 +21,7 @@ import java.util.function.ToLongFunction;
 /**
  * A codec (encoder/decoder) for the LabelingMapping class to and from the BSON (binary JSON) data type.
  * The resulting data structure consists of the number of sets, a mapping from complex type to integer
- * as well as the actual label sets. The Codec class is used in the {@link net.imglib2.roi.labeling.LabelingIO} class and handles
+ * as well as the actual label sets. The Codec class is used in the {@link net.imglib2.roi.io.labeling.LabelingIO} class and handles
  * the basic structure. For non-primitive label types, an additional codec must be written.
  * V1 Data structure:
  * // @formatter:off
@@ -311,10 +311,10 @@ public class LabelingMappingCodec<T> implements Codec<LabelingMapping<T>> {
          * or provide functions for encoding {@link #setLabelToId}
          * and decoding {@link #setIdToLabel}.
          *
-         * @param clazz
-         * @return
+         * @param clazz the class that represents a label
+         * @return a Builder for a LabelingMappingCodec
          */
-        public Builder<T> setClazz(final Class clazz) {
+        public Builder<T> setClazz(final Class<T> clazz) {
             this.clazz = clazz;
             return this;
         }
@@ -333,14 +333,21 @@ public class LabelingMappingCodec<T> implements Codec<LabelingMapping<T>> {
          * Set either this function for decoding or provide a class through {@link #setClazz}
          * and codec through the registry {@link #setCodecRegistry}
          *
-         * @param idToLabel
-         * @return
+         * @param idToLabel the decoding labeling function
+         * @return a Builder for a LabelingMappingCodec
          */
         public Builder<T> setIdToLabel(final LongFunction<T> idToLabel) {
             this.idToLabel = idToLabel;
             return this;
         }
 
+        /**
+         * Set either this function for encoding or provide a class through {@link #setClazz}
+         * and codec through the registry {@link #setCodecRegistry}
+         *
+         * @param labelToId the encoding labeling function
+         * @return a Builder for a LabelingMappingCodec
+         */
         public Builder<T> setLabelToId(final ToLongFunction<T> labelToId) {
             this.labelToId = labelToId;
             return this;

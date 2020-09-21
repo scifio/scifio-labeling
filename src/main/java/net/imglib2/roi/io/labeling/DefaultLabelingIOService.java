@@ -1,9 +1,10 @@
-package net.imglib2.io.labeling;
+package net.imglib2.roi.io.labeling;
 
 import io.scif.services.DatasetIOService;
 import net.imagej.ImageJService;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.IntegerType;
+import org.bson.codecs.Codec;
 import org.scijava.Context;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
@@ -34,8 +35,9 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
     }
 
     @Override
-    public <T, I extends IntegerType<I>> ImgLabeling<T, I> open(String file, Class clazz) {
+    public <T, I extends IntegerType<I>> ImgLabeling<T, I> open(String file, Class clazz, Codec<T>... codecs) {
         try {
+            io.addCodecs(codecs);
             return io.loadLabeling(file, clazz);
         } catch (IOException e) {
             e.printStackTrace();
@@ -59,7 +61,8 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
     }
 
     @Override
-    public <T, I extends IntegerType<I>> void save(ImgLabeling<T, I> imgLabeling, String file, Class clazz) {
+    public <T, I extends IntegerType<I>> void save(ImgLabeling<T, I> imgLabeling, String file, Class clazz, Codec<T>... codecs) {
+        io.addCodecs(codecs);
         io.saveLabeling(imgLabeling, file, clazz);
     }
 

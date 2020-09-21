@@ -1,4 +1,4 @@
-package net.imglib2.io.labeling;
+package net.imglib2.roi.io.labeling;
 
 import io.scif.services.DatasetIOService;
 import net.imglib2.img.Img;
@@ -38,7 +38,7 @@ public class LabelingIOTest {
 
     @Test
     public void loadLabelingPrimitiveTest() throws IOException {
-        ImgLabeling<Example, IntType> mapping = new LabelingIO(context, context.getService(DatasetIOService.class)).loadLabeling("src/test/resources/labeling/labelSaveTestSimple.bson", Integer.class);
+        ImgLabeling<Integer, IntType> mapping = new LabelingIO(context, context.getService(DatasetIOService.class)).loadLabeling("src/test/resources/labeling/labelSaveTestSimple.bson", Integer.class);
 
         Assert.assertEquals(getSimpleImgLabeling().getMapping().getLabels(), mapping.getMapping().getLabels());
     }
@@ -49,7 +49,7 @@ public class LabelingIOTest {
         LabelingIO io = new LabelingIO(context, context.getService(DatasetIOService.class));
         io.addCodecs(new ExampleCodec());
         io.saveLabeling(labeling, File.createTempFile("labelSaveTestComplex", ".tif").getAbsolutePath(), Example.class);
-    }
+     }
 
     @Test
     public void loadLabelingComplexWithCodecTest() throws IOException {
@@ -68,7 +68,7 @@ public class LabelingIOTest {
         AtomicLong atomicLong = new AtomicLong(0);
         labeling.getMapping().getLabels().forEach(label -> mapping.put(label, atomicLong.getAndIncrement()));
         io.saveLabeling(labeling, File.createTempFile("labelSaveTestComplexFunction", ".tif").getAbsolutePath(), mapping::get);
-    }
+   }
 
     @Test
     public void loadLabelingComplexWithFunctionTest() throws IOException {

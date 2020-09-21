@@ -1,6 +1,5 @@
-package net.imglib2.io.labeling;
+package net.imglib2.roi.io.labeling;
 
-import io.scif.img.IO;
 import io.scif.img.ImgIOException;
 import io.scif.img.ImgSaver;
 import io.scif.services.DatasetIOService;
@@ -70,9 +69,11 @@ public class LabelingIO {
      * For the save to work correctly with non-primitive types, a codec must be added to the registry through
      * one of the available methods in this class.
      *
-     * @param labelingData
-     * @param clazz        the clazz
+     * @param labelingData  the complete labeling data
+     * @param clazz        the class that represents one label
      * @param fileName     the path to the file
+     * @param <T> the class that represents a label
+     * @param <I> the value type of the image
      */
     <T, I extends IntegerType<I>> void saveLabeling(ImgLabeling<T, I> labelingData, String fileName, Class clazz) {
 
@@ -93,10 +94,12 @@ public class LabelingIO {
      *
      * @param fileName the path to the file
      * @param clazz    can be null if labeling is a primitive type
+     * @param <T> the class that represents a label
+     * @param <I> the value type of the image
      * @return the Labeling in the file
      * @throws IOException
      */
-    public <T, I extends IntegerType<I>> ImgLabeling<T, I> loadLabeling(String fileName, Class clazz) throws IOException {
+    public <T, I extends IntegerType<I>> ImgLabeling<T, I> loadLabeling(String fileName, Class<T> clazz) throws IOException {
         LabelingMappingCodec<T> labelingMappingCodec = new LabelingMappingCodec.Builder<T>().setIndexImg(getFilePathWithExtension(fileName, TIF_ENDING)).setClazz(clazz).setCodecRegistry(registry).build();
         RandomAccessFile aFile = new RandomAccessFile(getFilePathWithExtension(fileName, BSON_ENDING), "r");
         FileChannel inChannel = aFile.getChannel();
@@ -184,7 +187,7 @@ public class LabelingIO {
     /**
      * Overwrites the complete CodecRegistry.
      *
-     * @param registry
+     * @param registry the registry to override the existing one
      */
     public void setRegistry(CodecRegistry registry) {
         this.registry = registry;
@@ -193,7 +196,7 @@ public class LabelingIO {
     /**
      * Adds the codecs contained in one or more {@link CodecRegistry} to the current registry.
      *
-     * @param registries
+     * @param registries a number of registries to merge into the existing one
      */
     public void addCodecRegistries(CodecRegistry... registries) {
         this.registry = CodecRegistries.fromRegistries(getRegistry(), CodecRegistries.fromRegistries(registries));
@@ -202,7 +205,7 @@ public class LabelingIO {
     /**
      * Adds the codecs contained in one or more {@link CodecProvider} to the current registry.
      *
-     * @param providers
+     * @param providers a number of providers to merge into the existing registry
      */
     public void addCodecProviders(CodecProvider... providers) {
         this.registry = CodecRegistries.fromRegistries(getRegistry(), CodecRegistries.fromProviders(providers));
@@ -211,9 +214,11 @@ public class LabelingIO {
     /**
      * Adds one or more {@link Codec} to the current registry.
      *
-     * @param codecs
+     * @param codecs a number of codecs to merge into the existing registry
+     * @param <T> the class the codec encodes
      */
-    public void addCodecs(Codec... codecs) {
+    @SafeVarargs
+    public final <T> void addCodecs(Codec<T>... codecs) {
         this.registry = CodecRegistries.fromRegistries(getRegistry(), CodecRegistries.fromCodecs(codecs));
     }
 }
