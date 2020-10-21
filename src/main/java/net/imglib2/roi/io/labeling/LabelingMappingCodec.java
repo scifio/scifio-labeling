@@ -214,7 +214,12 @@ public class LabelingMappingCodec<T> implements Codec<LabelingMapping<T>> {
 
             while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
                 if (idToLabel != null) {
-                    labelSet.add(idToLabel.apply(reader.readInt64()));
+                    switch (reader.getCurrentBsonType()) {
+                        case INT32:
+                            labelSet.add(idToLabel.apply(reader.readInt32()));
+                        case INT64:
+                            labelSet.add(idToLabel.apply(reader.readInt64()));
+                    }
                 } else {
                     switch (reader.getCurrentBsonType()) {
                         case INT32:
