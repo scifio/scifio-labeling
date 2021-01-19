@@ -35,6 +35,7 @@ package net.imglib2.roi.io.labeling;
 
 import io.scif.services.DatasetIOService;
 import net.imagej.ImageJService;
+import net.imglib2.roi.io.labeling.data.ImgLabelingContainer;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.IntegerType;
 import org.bson.codecs.Codec;
@@ -58,7 +59,7 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
     private LabelingIO io;
 
     @Override
-    public <T, I extends IntegerType<I>> ImgLabeling<T, I> open(String file) {
+    public <T, I extends IntegerType<I>> ImgLabelingContainer<T, I> open(String file) {
         try {
             return io.loadLabeling(file);
         } catch (IOException e) {
@@ -68,7 +69,7 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
     }
 
     @Override
-    public <T, I extends IntegerType<I>> ImgLabeling<T, I> open(String file, Class clazz, Codec<T>... codecs) {
+    public <T, I extends IntegerType<I>> ImgLabelingContainer<T, I> open(String file, Class clazz, Codec<T>... codecs) {
         try {
             io.addCodecs(codecs);
             return io.loadLabeling(file, clazz);
@@ -79,7 +80,7 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
     }
 
     @Override
-    public <T, I extends IntegerType<I>> ImgLabeling<T, I> open(String file, LongFunction<T> idToLabel) {
+    public <T, I extends IntegerType<I>> ImgLabelingContainer<T, I> open(String file, LongFunction<T> idToLabel) {
         try {
             return io.loadLabeling(file, idToLabel);
         } catch (IOException e) {
@@ -89,19 +90,19 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
     }
 
     @Override
-    public <T, I extends IntegerType<I>> void save(ImgLabeling<T, I> imgLabeling, String file) {
-        io.saveLabeling(imgLabeling, file);
+    public <T, I extends IntegerType<I>> void save(ImgLabelingContainer<T, I> imgLabelingContainer, String file) {
+        io.saveLabeling(imgLabelingContainer, file);
     }
 
     @Override
-    public <T, I extends IntegerType<I>> void save(ImgLabeling<T, I> imgLabeling, String file, Class clazz, Codec<T>... codecs) {
+    public <T, I extends IntegerType<I>> void save(ImgLabelingContainer<T, I> imgLabelingContainer, String file, Class clazz, Codec<T>... codecs) {
         io.addCodecs(codecs);
-        io.saveLabeling(imgLabeling, file, clazz);
+        io.saveLabeling(imgLabelingContainer, file, clazz);
     }
 
     @Override
-    public <T, I extends IntegerType<I>> void save(ImgLabeling<T, I> imgLabeling, String file, ToLongFunction<T> labelToId) {
-        io.saveLabeling(imgLabeling, file, labelToId);
+    public <T, I extends IntegerType<I>> void save(ImgLabelingContainer<T, I> imgLabelingContainer, String file, ToLongFunction<T> labelToId) {
+        io.saveLabeling(imgLabelingContainer, file, labelToId);
     }
 
     @Override

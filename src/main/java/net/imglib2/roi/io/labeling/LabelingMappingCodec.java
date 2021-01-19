@@ -33,6 +33,7 @@
  */
 package net.imglib2.roi.io.labeling;
 
+import net.imglib2.roi.io.labeling.data.LabelingContainer;
 import net.imglib2.roi.labeling.LabelingMapping;
 import net.imglib2.type.logic.BoolType;
 import net.imglib2.type.numeric.integer.IntType;
@@ -75,7 +76,7 @@ import java.util.function.ToLongFunction;
  *
  * @author Tom Burke
  */
-public class LabelingMappingCodec<T> implements Codec<LabelingMapping<T>> {
+public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
     private final static int VERSION = 1;
 
     private Class clazz;
@@ -98,7 +99,7 @@ public class LabelingMappingCodec<T> implements Codec<LabelingMapping<T>> {
     }
 
     @Override
-    public LabelingMapping<T> decode(BsonReader reader, DecoderContext decoderContext) {
+    public LabelingContainer<T> decode(BsonReader reader, DecoderContext decoderContext) {
         LabelingMapping<T> labelingMapping = new LabelingMapping<T>(new IntType());
         reader.readStartDocument();
         int version = reader.readInt32("version");
@@ -106,23 +107,88 @@ public class LabelingMappingCodec<T> implements Codec<LabelingMapping<T>> {
         this.indexImg = reader.readString("indexImg");
 
         Map<Integer, T> mapping = readMapping(reader, decoderContext, clazz);
-        List<Set<T>> labelSets;
-        if (mapping.isEmpty()) {
-            labelSets = readLabelSets(reader, decoderContext, numSets);
-        } else {
-            labelSets = readLabelSets(reader, decoderContext, numSets, mapping);
-        }
-
-        labelingMapping.setLabelSets(labelSets);
+        LabelingContainer<T> container = readLabelSetsContainer(reader,decoderContext, numSets, mapping);
+        labelingMapping.setLabelSets(container.getLabelSets());
+        container.setLabelingMapping(labelingMapping);
         reader.readEndDocument();
-        return labelingMapping;
+        return container;
+    }
+
+    private LabelingContainer<T> readLabelSetsContainer(BsonReader reader, DecoderContext decoderContext, int numSets, Map<Integer, T> mapping){
+        LabelingContainer container = new LabelingContainer<>();
+        List<Set<T>> labelSets = new ArrayList<>();
+        Map<String, Set<Integer>> sourceToLabel = new HashMap<>();
+        reader.readStartDocument();
+        for (int i = 0; i < numSets; i++) {
+            Set<T> labelSet = new HashSet<>();
+            if(reader.readBsonType()==BsonType.DOCUMENT){
+                reader.readStartDocument();
+                readLabelSet(reader, decoderContext, mapping, labelSet);
+                if(i>0){
+                    container.addLabelToSource(reader.readString("source"), i);
+                }
+                reader.readEndDocument();
+            }else{
+                readLabelSet(reader, decoderContext, mapping, labelSet);
+            }
+            labelSets.add(labelSet);
+        }
+        container.setLabelSets(labelSets);
+        return container;
+    }
+
+    private void readLabelSet(BsonReader reader, DecoderContext decoderContext, Map<Integer, T> mapping, Set<T> labelSet) {
+        reader.readStartArray();
+        if (!mapping.isEmpty()) {
+            while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
+                labelSet.add(mapping.get(reader.readInt32()));
+            }
+        }else {
+            while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
+                if (idToLabel != null) {
+                    switch (reader.getCurrentBsonType()) {
+                        case INT32:
+                            labelSet.add(idToLabel.apply(reader.readInt32()));
+                            break;
+                        case INT64:
+                            labelSet.add(idToLabel.apply(reader.readInt64()));
+                            break;
+                    }
+                } else {
+                    switch (reader.getCurrentBsonType()) {
+                        case INT32:
+                            Integer intValue = reader.readInt32();
+                            labelSet.add((T) intValue);
+                            break;
+                        case INT64:
+                            Long longValue = reader.readInt64();
+                            labelSet.add((T) longValue);
+                            break;
+                        case BOOLEAN:
+                            Boolean booleanValue = reader.readBoolean();
+                            labelSet.add((T) booleanValue);
+                            break;
+                        case STRING:
+                            String stringValue = reader.readString();
+                            labelSet.add((T) stringValue);
+                            break;
+                        case DOCUMENT:
+                            labelSet.add((T) (codecRegistry.get(clazz).decode(reader, decoderContext)));
+                            break;
+                        default:
+                            System.out.println("Type currently not supported. " + reader.getCurrentBsonType());
+                    }
+                }
+            }
+        }
+        reader.readEndArray();
     }
 
     private List<Set<T>> readLabelSets(BsonReader reader, DecoderContext decoderContext, int numSets, Map<Integer, T> mapping) {
         List<Set<T>> labelSets = new ArrayList<>();
         reader.readStartDocument();
         for (int i = 0; i < numSets; i++) {
-            Set<T> labelSet = new HashSet<>();
+            Set<T> labelSet = Collections.emptySortedSet();
             reader.readStartArray();
             while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
                 labelSet.add(mapping.get(reader.readInt32()));
@@ -136,20 +202,21 @@ public class LabelingMappingCodec<T> implements Codec<LabelingMapping<T>> {
     }
 
     @Override
-    public void encode(BsonWriter writer, LabelingMapping<T> value, EncoderContext encoderContext) {
+    public void encode(BsonWriter writer, LabelingContainer<T> value, EncoderContext encoderContext) {
+        LabelingMapping<T> labelingMapping = value.getLabelingMapping();
         writer.writeStartDocument();
         writer.writeInt32("version", VERSION);
-        writer.writeInt32("numSets", value.numSets());
+        writer.writeInt32("numSets", labelingMapping.numSets());
         writer.writeString("indexImg", indexImg);
-        Optional<T> first = value.getLabels().stream().findFirst();
+        Optional<T> first = labelingMapping.getLabels().stream().findFirst();
         if (first.isPresent() && !isWrapperType(first.get().getClass())) {
             if (clazz == null) {
                 writer.writeStartDocument("labelMapping");
                 writer.writeEndDocument();
                 writer.writeStartDocument("labelSets");
-                for (int i = 0; i < value.numSets(); i++) {
-                    Set<T> labelSet = value.labelsAtIndex(i);
-                    writer.writeStartArray("labelSet_" + i);
+                for (int i = 0; i < labelingMapping.numSets(); i++) {
+                    Set<T> labelSet = labelingMapping.labelsAtIndex(i);
+                    writer.writeStartArray(Integer.toString(i));
                     labelSet.forEach(v -> writeValue(labelToId.applyAsLong(v), writer, encoderContext));
                     writer.writeEndArray();
                 }
@@ -158,7 +225,7 @@ public class LabelingMappingCodec<T> implements Codec<LabelingMapping<T>> {
                 AtomicInteger count = new AtomicInteger();
                 HashMap<T, Integer> map = new HashMap<>();
                 writer.writeStartDocument("labelMapping");
-                value.getLabels().forEach(v -> {
+                labelingMapping.getLabels().forEach(v -> {
                     map.put(v, count.get());
                     writer.writeName(String.valueOf(count.getAndIncrement()));
                     Codec<T> codec = (Codec<T>) codecRegistry.get(v.getClass());
@@ -166,9 +233,9 @@ public class LabelingMappingCodec<T> implements Codec<LabelingMapping<T>> {
                 });
                 writer.writeEndDocument();
                 writer.writeStartDocument("labelSets");
-                for (int i = 0; i < value.numSets(); i++) {
-                    Set<T> labelSet = value.labelsAtIndex(i);
-                    writer.writeStartArray("labelSet_" + i);
+                for (int i = 0; i < labelingMapping.numSets(); i++) {
+                    Set<T> labelSet = labelingMapping.labelsAtIndex(i);
+                    writer.writeStartArray(Integer.toString(i));
                     labelSet.forEach(v -> writeValue(map.get(v), writer, encoderContext));
                     writer.writeEndArray();
                 }
@@ -178,11 +245,25 @@ public class LabelingMappingCodec<T> implements Codec<LabelingMapping<T>> {
             writer.writeStartDocument("labelMapping");
             writer.writeEndDocument();
             writer.writeStartDocument("labelSets");
-            for (int i = 0; i < value.numSets(); i++) {
-                Set<T> labelSet = value.labelsAtIndex(i);
-                writer.writeStartArray("labelSet_" + i);
-                labelSet.forEach(v -> writeValue(v, writer, encoderContext));
-                writer.writeEndArray();
+            for (int i = 0; i < labelingMapping.numSets(); i++) {
+                Set<T> labelSet = labelingMapping.labelsAtIndex(i);
+                if(value.getSourceToLabel() != null){
+                    writer.writeStartDocument(Integer.toString(i));
+                    writer.writeStartArray("set");
+                    labelSet.forEach(v -> writeValue(v, writer, encoderContext));
+                    writer.writeEndArray();
+                    for(Map.Entry<String,Set<Integer>> entry : value.getSourceToLabel().entrySet()){
+                        if(entry.getValue().contains(i)){
+                            writer.writeString("source",entry.getKey());
+                            break;
+                        }
+                    }
+                    writer.writeEndDocument();
+                }else{
+                    writer.writeStartArray(Integer.toString(i));
+                    labelSet.forEach(v -> writeValue(v, writer, encoderContext));
+                    writer.writeEndArray();
+                }
             }
             writer.writeEndDocument();
         }
@@ -241,7 +322,7 @@ public class LabelingMappingCodec<T> implements Codec<LabelingMapping<T>> {
                             labelSet.add((T) stringValue);
                             break;
                         case DOCUMENT:
-                            labelSet.add((T) codecRegistry.get(clazz).decode(reader, decoderContext));
+                            labelSet.add((T) (codecRegistry.get(clazz).decode(reader, decoderContext)));
                             break;
                         default:
                             System.out.println("Type currently not supported. " + reader.getCurrentBsonType());
@@ -288,8 +369,8 @@ public class LabelingMappingCodec<T> implements Codec<LabelingMapping<T>> {
     }
 
     @Override
-    public Class<LabelingMapping<T>> getEncoderClass() {
-        return (Class<LabelingMapping<T>>) new LabelingMapping<T>(new IntType()).getClass();
+    public Class<LabelingContainer<T>> getEncoderClass() {
+        return (Class<LabelingContainer<T>>) new LabelingContainer<T>().getClass();
     }
 
     public void setCodecRegistry(CodecRegistry codecRegistry) {

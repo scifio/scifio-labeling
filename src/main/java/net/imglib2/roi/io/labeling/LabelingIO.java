@@ -40,6 +40,8 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
+import net.imglib2.roi.io.labeling.data.ImgLabelingContainer;
+import net.imglib2.roi.io.labeling.data.LabelingContainer;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.roi.labeling.LabelingMapping;
 import net.imglib2.type.numeric.IntegerType;
@@ -89,11 +91,11 @@ public class LabelingIO {
         this.datasetIOService = datasetIOService;
     }
 
-    <T, I extends IntegerType<I>> void saveLabeling(ImgLabeling<T, I> labelingData, String fileName) {
-        this.saveLabeling(labelingData, fileName, (Class) null);
+    <T, I extends IntegerType<I>> void saveLabeling(ImgLabelingContainer<T, I> imgLabelingContainer, String fileName) {
+        this.saveLabeling(imgLabelingContainer, fileName, (Class) null);
     }
 
-    <T, I extends IntegerType<I>> ImgLabeling<T, I> loadLabeling(String fileName) throws IOException {
+    <T, I extends IntegerType<I>> ImgLabelingContainer loadLabeling(String fileName) throws IOException {
         return loadLabeling(fileName, (Class) null);
     }
 
@@ -102,20 +104,24 @@ public class LabelingIO {
      * For the save to work correctly with non-primitive types, a codec must be added to the registry through
      * one of the available methods in this class.
      *
-     * @param labelingData  the complete labeling data
+     * @param imgLabelingContainer  the complete labeling data
      * @param clazz        the class that represents one label
      * @param fileName     the path to the file
      * @param <T> the class that represents a label
      * @param <I> the value type of the image
      */
-    <T, I extends IntegerType<I>> void saveLabeling(ImgLabeling<T, I> labelingData, String fileName, Class clazz) {
+    <T, I extends IntegerType<I>> void saveLabeling(ImgLabelingContainer<T, I> imgLabelingContainer, String fileName, Class clazz) {
 
         LabelingMappingCodec<T> labelingMappingCodec = new LabelingMappingCodec.Builder<T>().setIndexImg(getFilePathWithExtension(fileName, TIF_ENDING)).setClazz(clazz).setCodecRegistry(registry).build();
         BasicOutputBuffer outputBuffer = new BasicOutputBuffer();
         BsonBinaryWriter writer = new BsonBinaryWriter(outputBuffer);
-        labelingMappingCodec.encode(writer, labelingData.getMapping(), EncoderContext.builder().isEncodingCollectibleDocument(false).build());
+        LabelingContainer container = new LabelingContainer();
+        container.setLabelingMapping(imgLabelingContainer.getImgLabeling().getMapping());
+        if(imgLabelingContainer.getSourceToLabel() != null)
+            container.setSourceToLabel(imgLabelingContainer.getSourceToLabel());
+        labelingMappingCodec.encode(writer, container, EncoderContext.builder().isEncodingCollectibleDocument(false).build());
         writeToFile(outputBuffer, new File(getFilePathWithExtension(fileName, BSON_ENDING)));
-        final Img<I> img = ImgView.wrap(labelingData.getIndexImg(), null);
+        final Img<I> img = ImgView.wrap(imgLabelingContainer.getImgLabeling().getIndexImg(), null);
         saveAsTiff(getFilePathWithExtension(fileName, TIF_ENDING), img);
     }
 
@@ -125,42 +131,47 @@ public class LabelingIO {
      * For the load to work correctly with non-primitive types, a codec must be added to the registry through
      * one of the available methods in this class.
      *
-     * @param fileName the path to the file
-     * @param clazz    can be null if labeling is a primitive type
      * @param <T> the class that represents a label
      * @param <I> the value type of the image
+     * @param fileName the path to the file
+     * @param clazz    can be null if labeling is a primitive type
      * @return the Labeling in the file
      * @throws IOException
      */
-    public <T, I extends IntegerType<I>> ImgLabeling<T, I> loadLabeling(String fileName, Class<T> clazz) throws IOException {
+    public <T, I extends IntegerType<I>> ImgLabelingContainer<T, I> loadLabeling(String fileName, Class<T> clazz) throws IOException {
         LabelingMappingCodec<T> labelingMappingCodec = new LabelingMappingCodec.Builder<T>().setIndexImg(getFilePathWithExtension(fileName, TIF_ENDING)).setClazz(clazz).setCodecRegistry(registry).build();
         RandomAccessFile aFile = new RandomAccessFile(getFilePathWithExtension(fileName, BSON_ENDING), "r");
         FileChannel inChannel = aFile.getChannel();
         MappedByteBuffer buffer = inChannel.map(FileChannel.MapMode.READ_ONLY, 0, inChannel.size());
         BsonReader bsonReader = new BsonBinaryReader(buffer);
-        LabelingMapping<T> labelingMapping =labelingMappingCodec.decode(bsonReader, DecoderContext.builder().build());
+        LabelingContainer<T> container =labelingMappingCodec.decode(bsonReader, DecoderContext.builder().build());
+        LabelingMapping<T> labelingMapping = container.getLabelingMapping();
         Img<I> indexImg = null;
         if(datasetIOService.canOpen(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING))){
             indexImg = (Img<I>) datasetIOService.open(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING)).getImgPlus().getImg();
         }else{
             throw new IOException("Image referred to in bson-file could not be opened");
         }
-        return ImgLabeling.fromImageAndLabelSets(indexImg, labelingMapping.getLabelSets());
+        return new ImgLabelingContainer<T,I>(ImgLabeling.fromImageAndLabelSets(indexImg, labelingMapping.getLabelSets()), container.getSourceToLabel());
     }
 
-    public <T, I extends IntegerType<I>> void saveLabeling(ImgLabeling<T, I> labelingData, String fileName, ToLongFunction<T> labelToId) {
+    public <T, I extends IntegerType<I>> void saveLabeling(ImgLabelingContainer<T, I> imgLabelingContainer, String fileName, ToLongFunction<T> labelToId) {
         LabelingMappingCodec<T> labelingMappingCodec = new LabelingMappingCodec.Builder<T>().setCodecRegistry(registry).setLabelToId(labelToId).build();
         labelingMappingCodec.setIndexImg(getFilePathWithExtension(fileName, TIF_ENDING));
         BasicOutputBuffer outputBuffer = new BasicOutputBuffer();
         BsonBinaryWriter writer = new BsonBinaryWriter(outputBuffer);
-        labelingMappingCodec.encode(writer, labelingData.getMapping(), EncoderContext.builder().isEncodingCollectibleDocument(false).build());
+        LabelingContainer container = new LabelingContainer();
+        container.setLabelingMapping(imgLabelingContainer.getImgLabeling().getMapping());
+        if(imgLabelingContainer.getSourceToLabel() != null)
+            container.setSourceToLabel(imgLabelingContainer.getSourceToLabel());
+        labelingMappingCodec.encode(writer, container, EncoderContext.builder().isEncodingCollectibleDocument(false).build());
         writeToFile(outputBuffer, new File(getFilePathWithExtension(fileName, BSON_ENDING)));
 
-        final Img<I> img = ImgView.wrap(labelingData.getIndexImg(), null);
+        final Img<I> img = ImgView.wrap(imgLabelingContainer.getImgLabeling().getIndexImg(), null);
         saveAsTiff(getFilePathWithExtension(fileName, TIF_ENDING), img);
     }
 
-    public <T, I extends IntegerType<I>> ImgLabeling<T, I> loadLabeling(String fileName, LongFunction<T> idToLabel) throws IOException {
+    public <T, I extends IntegerType<I>> ImgLabelingContainer<T, I> loadLabeling(String fileName, LongFunction<T> idToLabel) throws IOException {
 
         LabelingMappingCodec<T> labelingMappingCodec = new LabelingMappingCodec.Builder<T>().setCodecRegistry(registry).setIdToLabel(idToLabel).build();
 
@@ -169,14 +180,15 @@ public class LabelingIO {
         MappedByteBuffer buffer = inChannel.map(FileChannel.MapMode.READ_ONLY, 0, inChannel.size());
         BsonReader bsonReader = new BsonBinaryReader(buffer);
 
-        LabelingMapping<T> labelingMapping = labelingMappingCodec.decode(bsonReader, DecoderContext.builder().build());
+        LabelingContainer<T> container =labelingMappingCodec.decode(bsonReader, DecoderContext.builder().build());
+        LabelingMapping<T> labelingMapping = container.getLabelingMapping();
         Img<I> indexImg = null;
         if(datasetIOService.canOpen(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING))){
             indexImg = (Img<I>) datasetIOService.open(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING)).getImgPlus().getImg();
         }else{
             throw new IOException("Image referred to in bson-file could not be opened");
         }
-        return ImgLabeling.fromImageAndLabelSets(indexImg, labelingMapping.getLabelSets());
+        return new ImgLabelingContainer<T,I>(ImgLabeling.fromImageAndLabelSets(indexImg, labelingMapping.getLabelSets()), container.getSourceToLabel());
     }
 
     private void writeToFile(BasicOutputBuffer outputBuffer, File file) {
