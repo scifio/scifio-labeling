@@ -38,6 +38,7 @@ import net.imglib2.roi.labeling.LabelingMapping;
 import net.imglib2.type.logic.BoolType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.integer.LongType;
+import org.bson.BsonInvalidOperationException;
 import org.bson.BsonReader;
 import org.bson.BsonType;
 import org.bson.BsonWriter;
@@ -78,15 +79,12 @@ import java.util.function.ToLongFunction;
  */
 public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
     private final static int VERSION = 1;
-
+    private static final Set<Class> WRAPPER_TYPES = new HashSet(Arrays.asList(IntType.class, LongType.class, BoolType.class,
+            Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class, Void.class, String.class));
     private Class clazz;
-
     private CodecRegistry codecRegistry;
-
     private String indexImg;
-
     private LongFunction<T> idToLabel;
-
     private ToLongFunction<T> labelToId;
 
     private LabelingMappingCodec(final Builder<T> builder) {
@@ -96,6 +94,10 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
         this.idToLabel = builder.idToLabel;
         this.labelToId = builder.labelToId;
 
+    }
+
+    public static boolean isWrapperType(Class clazz) {
+        return WRAPPER_TYPES.contains(clazz);
     }
 
     @Override
@@ -120,16 +122,23 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
         Map<String, Set<Integer>> sourceToLabel = new HashMap<>();
         reader.readStartDocument();
         for (int i = 0; i < numSets; i++) {
-            Set<T> labelSet = new HashSet<>();
+            Set<T> labelSet = Collections.emptySortedSet();
             if(reader.readBsonType()==BsonType.DOCUMENT){
                 reader.readStartDocument();
-                readLabelSet(reader, decoderContext, mapping, labelSet);
-                if(i>0){
-                    container.addLabelToSource(reader.readString("source"), i);
+                try {
+                    String source = reader.readString("source");
+                    if(source != null){
+                        container.addLabelToSource(source, i);
+                    }
+                }catch (BsonInvalidOperationException e){
+                    reader.skipValue();
                 }
+
+
+                labelSet = readLabelSet(reader, decoderContext, mapping);
                 reader.readEndDocument();
             }else{
-                readLabelSet(reader, decoderContext, mapping, labelSet);
+                labelSet = readLabelSet(reader, decoderContext, mapping);
             }
             labelSets.add(labelSet);
         }
@@ -137,7 +146,8 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
         return container;
     }
 
-    private void readLabelSet(BsonReader reader, DecoderContext decoderContext, Map<Integer, T> mapping, Set<T> labelSet) {
+    private Set<T> readLabelSet(BsonReader reader, DecoderContext decoderContext, Map<Integer, T> mapping) {
+        Set<T> labelSet = Collections.emptySortedSet();
         reader.readStartArray();
         if (!mapping.isEmpty()) {
             while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
@@ -182,6 +192,7 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
             }
         }
         reader.readEndArray();
+        return labelSet;
     }
 
     private List<Set<T>> readLabelSets(BsonReader reader, DecoderContext decoderContext, int numSets, Map<Integer, T> mapping) {
@@ -373,16 +384,16 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
         return (Class<LabelingContainer<T>>) new LabelingContainer<T>().getClass();
     }
 
-    public void setCodecRegistry(CodecRegistry codecRegistry) {
-        this.codecRegistry = codecRegistry;
-    }
-
     public Class getClazz() {
         return clazz;
     }
 
     public CodecRegistry getCodecRegistry() {
         return codecRegistry;
+    }
+
+    public void setCodecRegistry(CodecRegistry codecRegistry) {
+        this.codecRegistry = codecRegistry;
     }
 
     public String getIndexImg() {
@@ -407,13 +418,6 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
 
     public void setLabelToId(final ToLongFunction<T> labelToId) {
         this.labelToId = labelToId;
-    }
-
-    private static final Set<Class> WRAPPER_TYPES = new HashSet(Arrays.asList(IntType.class, LongType.class, BoolType.class,
-            Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class, Void.class, String.class));
-
-    public static boolean isWrapperType(Class clazz) {
-        return WRAPPER_TYPES.contains(clazz);
     }
 
     public static final class Builder<T> {

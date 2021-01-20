@@ -2,15 +2,12 @@ package net.imglib2.roi.io.labeling.data;
 
 import net.imglib2.roi.labeling.LabelingMapping;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class LabelingContainer<T> {
 
     List<Set<T>> labelSets;
-    Map<String, Set<Integer>> sourceToLabel;
+    Map<String, Set<Integer>> sourceToLabel = new HashMap<>();
     LabelingMapping<T> labelingMapping;
 
 
