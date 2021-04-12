@@ -38,10 +38,8 @@ import net.imglib2.roi.labeling.LabelingMapping;
 import net.imglib2.type.logic.BoolType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.integer.LongType;
-import org.bson.BsonInvalidOperationException;
-import org.bson.BsonReader;
-import org.bson.BsonType;
-import org.bson.BsonWriter;
+import org.bson.*;
+import org.bson.codecs.BsonValueCodecProvider;
 import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
@@ -52,6 +50,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.LongFunction;
 import java.util.function.ToLongFunction;
+import java.util.stream.Collectors;
 
 /**
  * A codec (encoder/decoder) for the LabelingMapping class to and from the BSON (binary JSON) data type.
@@ -106,35 +105,26 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
         reader.readStartDocument();
         int version = reader.readInt32("version");
         int numSets = reader.readInt32("numSets");
+        int numSources = reader.readInt32("numSources");
         this.indexImg = reader.readString("indexImg");
 
         Map<Integer, T> mapping = readMapping(reader, decoderContext, clazz);
-        LabelingContainer<T> container = readLabelSetsContainer(reader,decoderContext, numSets, mapping);
+        LabelingContainer<T> container = readLabelSetsContainer(reader,decoderContext, numSets, numSources, mapping);
         labelingMapping.setLabelSets(container.getLabelSets());
         container.setLabelingMapping(labelingMapping);
-        reader.readEndDocument();
+
         return container;
     }
 
-    private LabelingContainer<T> readLabelSetsContainer(BsonReader reader, DecoderContext decoderContext, int numSets, Map<Integer, T> mapping){
+    private LabelingContainer<T> readLabelSetsContainer(BsonReader reader, DecoderContext decoderContext, int numSets, int numSources, Map<Integer, T> mapping){
         LabelingContainer container = new LabelingContainer<>();
         List<Set<T>> labelSets = new ArrayList<>();
-        Map<String, Set<Integer>> sourceToLabel = new HashMap<>();
         reader.readStartDocument();
         for (int i = 0; i < numSets; i++) {
-            Set<T> labelSet = Collections.emptySortedSet();
-            if(reader.readBsonType()==BsonType.DOCUMENT){
+            Set<T> labelSet = null;
+            BsonType bsonType = reader.readBsonType();
+            if(bsonType == BsonType.DOCUMENT){
                 reader.readStartDocument();
-                try {
-                    String source = reader.readString("source");
-                    if(source != null){
-                        container.addLabelToSource(source, i);
-                    }
-                }catch (BsonInvalidOperationException e){
-                    reader.skipValue();
-                }
-
-
                 labelSet = readLabelSet(reader, decoderContext, mapping);
                 reader.readEndDocument();
             }else{
@@ -142,57 +132,38 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
             }
             labelSets.add(labelSet);
         }
+        reader.readEndDocument();
         container.setLabelSets(labelSets);
+        if(reader.readBsonType().equals(BsonType.DOCUMENT)){
+            BsonDocument bsonDocument = getCodecRegistry().get(BsonDocument.class).decode(reader, decoderContext);
+            for (Map.Entry<String, BsonValue> entry : bsonDocument.entrySet())
+                for (BsonValue value : entry.getValue().asArray()) {
+                    container.addLabelToSource(entry.getKey(), value.asInt32().intValue());
+                }
+        }
         return container;
     }
 
     private Set<T> readLabelSet(BsonReader reader, DecoderContext decoderContext, Map<Integer, T> mapping) {
-        Set<T> labelSet = Collections.emptySortedSet();
-        reader.readStartArray();
-        if (!mapping.isEmpty()) {
-            while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
-                labelSet.add(mapping.get(reader.readInt32()));
-            }
-        }else {
-            while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
-                if (idToLabel != null) {
-                    switch (reader.getCurrentBsonType()) {
-                        case INT32:
-                            labelSet.add(idToLabel.apply(reader.readInt32()));
-                            break;
-                        case INT64:
-                            labelSet.add(idToLabel.apply(reader.readInt64()));
-                            break;
-                    }
-                } else {
-                    switch (reader.getCurrentBsonType()) {
-                        case INT32:
-                            Integer intValue = reader.readInt32();
-                            labelSet.add((T) intValue);
-                            break;
-                        case INT64:
-                            Long longValue = reader.readInt64();
-                            labelSet.add((T) longValue);
-                            break;
-                        case BOOLEAN:
-                            Boolean booleanValue = reader.readBoolean();
-                            labelSet.add((T) booleanValue);
-                            break;
-                        case STRING:
-                            String stringValue = reader.readString();
-                            labelSet.add((T) stringValue);
-                            break;
-                        case DOCUMENT:
-                            labelSet.add((T) (codecRegistry.get(clazz).decode(reader, decoderContext)));
-                            break;
-                        default:
-                            System.out.println("Type currently not supported. " + reader.getCurrentBsonType());
-                    }
-                }
-            }
-        }
-        reader.readEndArray();
-        return labelSet;
+        //Set<T> labelSet = new TreeSet<>();
+        BsonArray bsonValues = getCodecRegistry().get(BsonArray.class).decode(reader,decoderContext);
+        Set<?> labelSet = bsonValues.stream().map(v->{
+            if (v.isInt32())
+                return v.asInt32().intValue();
+            else
+                return v.asInt64().intValue();
+        }).map(v->{
+            if (getIdToLabel()!=null)
+                return getIdToLabel().apply(v);
+            else if(!mapping.isEmpty())
+                return mapping.get(v);
+            else
+                return v;
+        }).collect(Collectors.toSet());
+
+
+
+        return (Set<T>) labelSet;
     }
 
     private List<Set<T>> readLabelSets(BsonReader reader, DecoderContext decoderContext, int numSets, Map<Integer, T> mapping) {
@@ -218,6 +189,7 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
         writer.writeStartDocument();
         writer.writeInt32("version", VERSION);
         writer.writeInt32("numSets", labelingMapping.numSets());
+        writer.writeInt32("numSources", value.getSourceToLabel().size());
         writer.writeString("indexImg", indexImg);
         Optional<T> first = labelingMapping.getLabels().stream().findFirst();
         if (first.isPresent() && !isWrapperType(first.get().getClass())) {
@@ -278,6 +250,18 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
             }
             writer.writeEndDocument();
         }
+        if(!value.getSourceToLabel().isEmpty()){
+            writer.writeStartDocument("segmentationSource");
+            for(Map.Entry<String, Set<Integer>> entry : value.getSourceToLabel().entrySet()){
+                writer.writeStartArray(entry.getKey());
+                for(Integer i : entry.getValue()){
+                    writer.writeInt32(i);
+                }
+                writer.writeEndArray();
+            }
+            writer.writeEndDocument();
+        }
+
 
         writer.writeEndDocument();
     }

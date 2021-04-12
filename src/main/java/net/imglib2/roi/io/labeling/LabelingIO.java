@@ -62,6 +62,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.function.LongFunction;
 import java.util.function.ToLongFunction;
 
@@ -86,9 +88,10 @@ public class LabelingIO {
     CodecRegistry registry = CodecRegistries.fromProviders(new BsonValueCodecProvider(), new DocumentCodecProvider()
             , new ValueCodecProvider());
 
-    LabelingIO(Context context, DatasetIOService datasetIOService){
+    public LabelingIO(Context context, DatasetIOService datasetIOService){
         this.context = context;
         this.datasetIOService = datasetIOService;
+        addCodecs(new BsonArrayCodec(registry));
     }
 
     <T, I extends IntegerType<I>> void saveLabeling(ImgLabelingContainer<T, I> imgLabelingContainer, String fileName) {
@@ -112,7 +115,7 @@ public class LabelingIO {
      */
     <T, I extends IntegerType<I>> void saveLabeling(ImgLabelingContainer<T, I> imgLabelingContainer, String fileName, Class clazz) {
 
-        LabelingMappingCodec<T> labelingMappingCodec = new LabelingMappingCodec.Builder<T>().setIndexImg(getFilePathWithExtension(fileName, TIF_ENDING)).setClazz(clazz).setCodecRegistry(registry).build();
+        LabelingMappingCodec<T> labelingMappingCodec = new LabelingMappingCodec.Builder<T>().setIndexImg(getFilePathWithExtension(fileName, TIF_ENDING, Paths.get(fileName).getParent().toString())).setClazz(clazz).setCodecRegistry(registry).build();
         BasicOutputBuffer outputBuffer = new BasicOutputBuffer();
         BsonBinaryWriter writer = new BsonBinaryWriter(outputBuffer);
         LabelingContainer container = new LabelingContainer();
@@ -120,9 +123,9 @@ public class LabelingIO {
         if(imgLabelingContainer.getSourceToLabel() != null)
             container.setSourceToLabel(imgLabelingContainer.getSourceToLabel());
         labelingMappingCodec.encode(writer, container, EncoderContext.builder().isEncodingCollectibleDocument(false).build());
-        writeToFile(outputBuffer, new File(getFilePathWithExtension(fileName, BSON_ENDING)));
+        writeToFile(outputBuffer, new File(getFilePathWithExtension(fileName, BSON_ENDING, Paths.get(fileName).getParent().toString())));
         final Img<I> img = ImgView.wrap(imgLabelingContainer.getImgLabeling().getIndexImg(), null);
-        saveAsTiff(getFilePathWithExtension(fileName, TIF_ENDING), img);
+        saveAsTiff(getFilePathWithExtension(fileName, TIF_ENDING, Paths.get(fileName).getParent().toString()), img);
     }
 
     /**
@@ -139,16 +142,16 @@ public class LabelingIO {
      * @throws IOException
      */
     public <T, I extends IntegerType<I>> ImgLabelingContainer<T, I> loadLabeling(String fileName, Class<T> clazz) throws IOException {
-        LabelingMappingCodec<T> labelingMappingCodec = new LabelingMappingCodec.Builder<T>().setIndexImg(getFilePathWithExtension(fileName, TIF_ENDING)).setClazz(clazz).setCodecRegistry(registry).build();
-        RandomAccessFile aFile = new RandomAccessFile(getFilePathWithExtension(fileName, BSON_ENDING), "r");
+        LabelingMappingCodec<T> labelingMappingCodec = new LabelingMappingCodec.Builder<T>().setIndexImg(getFilePathWithExtension(fileName, TIF_ENDING, "")).setClazz(clazz).setCodecRegistry(registry).build();
+        RandomAccessFile aFile = new RandomAccessFile(getFilePathWithExtension(fileName, BSON_ENDING, Paths.get(fileName).getParent().toString()), "r");
         FileChannel inChannel = aFile.getChannel();
         MappedByteBuffer buffer = inChannel.map(FileChannel.MapMode.READ_ONLY, 0, inChannel.size());
         BsonReader bsonReader = new BsonBinaryReader(buffer);
         LabelingContainer<T> container =labelingMappingCodec.decode(bsonReader, DecoderContext.builder().build());
         LabelingMapping<T> labelingMapping = container.getLabelingMapping();
         Img<I> indexImg = null;
-        if(datasetIOService.canOpen(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING))){
-            indexImg = (Img<I>) datasetIOService.open(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING)).getImgPlus().getImg();
+        if(datasetIOService.canOpen(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING, Paths.get(fileName).getParent().toString()))){
+            indexImg = (Img<I>) datasetIOService.open(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING, Paths.get(fileName).getParent().toString())).getImgPlus().getImg();
         }else{
             throw new IOException("Image referred to in bson-file could not be opened");
         }
@@ -157,7 +160,7 @@ public class LabelingIO {
 
     public <T, I extends IntegerType<I>> void saveLabeling(ImgLabelingContainer<T, I> imgLabelingContainer, String fileName, ToLongFunction<T> labelToId) {
         LabelingMappingCodec<T> labelingMappingCodec = new LabelingMappingCodec.Builder<T>().setCodecRegistry(registry).setLabelToId(labelToId).build();
-        labelingMappingCodec.setIndexImg(getFilePathWithExtension(fileName, TIF_ENDING));
+        labelingMappingCodec.setIndexImg(getFilePathWithExtension(fileName, TIF_ENDING, ""));
         BasicOutputBuffer outputBuffer = new BasicOutputBuffer();
         BsonBinaryWriter writer = new BsonBinaryWriter(outputBuffer);
         LabelingContainer container = new LabelingContainer();
@@ -165,17 +168,18 @@ public class LabelingIO {
         if(imgLabelingContainer.getSourceToLabel() != null)
             container.setSourceToLabel(imgLabelingContainer.getSourceToLabel());
         labelingMappingCodec.encode(writer, container, EncoderContext.builder().isEncodingCollectibleDocument(false).build());
-        writeToFile(outputBuffer, new File(getFilePathWithExtension(fileName, BSON_ENDING)));
+        writeToFile(outputBuffer, new File(getFilePathWithExtension(fileName, BSON_ENDING, Paths.get(fileName).getParent().toString())));
 
         final Img<I> img = ImgView.wrap(imgLabelingContainer.getImgLabeling().getIndexImg(), null);
-        saveAsTiff(getFilePathWithExtension(fileName, TIF_ENDING), img);
+        saveAsTiff(getFilePathWithExtension(fileName, TIF_ENDING, Paths.get(fileName).getParent().toString()), img);
     }
 
     public <T, I extends IntegerType<I>> ImgLabelingContainer<T, I> loadLabeling(String fileName, LongFunction<T> idToLabel) throws IOException {
 
         LabelingMappingCodec<T> labelingMappingCodec = new LabelingMappingCodec.Builder<T>().setCodecRegistry(registry).setIdToLabel(idToLabel).build();
 
-        RandomAccessFile aFile = new RandomAccessFile(getFilePathWithExtension(fileName, BSON_ENDING), "r");
+        Path labelingFile = Paths.get(fileName);
+        RandomAccessFile aFile = new RandomAccessFile(getFilePathWithExtension(fileName, BSON_ENDING, labelingFile.getParent().toString()), "r");
         FileChannel inChannel = aFile.getChannel();
         MappedByteBuffer buffer = inChannel.map(FileChannel.MapMode.READ_ONLY, 0, inChannel.size());
         BsonReader bsonReader = new BsonBinaryReader(buffer);
@@ -183,8 +187,8 @@ public class LabelingIO {
         LabelingContainer<T> container =labelingMappingCodec.decode(bsonReader, DecoderContext.builder().build());
         LabelingMapping<T> labelingMapping = container.getLabelingMapping();
         Img<I> indexImg = null;
-        if(datasetIOService.canOpen(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING))){
-            indexImg = (Img<I>) datasetIOService.open(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING)).getImgPlus().getImg();
+        if(datasetIOService.canOpen(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING, labelingFile.getParent().toString()))){
+            indexImg = (Img<I>) datasetIOService.open(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING, labelingFile.getParent().toString())).getImgPlus().getImg();
         }else{
             throw new IOException("Image referred to in bson-file could not be opened");
         }
@@ -199,12 +203,14 @@ public class LabelingIO {
         }
     }
 
-    private String getFilePathWithExtension(final String filename, final String extension) {
-        if (filename.endsWith(extension)) {
-            return filename;
+    private String getFilePathWithExtension(final String filename, final String extension, String path) {
+        path = (path==null)?"":path;
+        String actualFilename = Paths.get(filename).getFileName().toString();
+        if (actualFilename.endsWith(extension)) {
+            return Paths.get(path, actualFilename).toString();
         }
-        final int index = filename.lastIndexOf(".");
-        return filename.substring(0, index == -1 ? filename.length() : index).concat(extension);
+        final int index = actualFilename.lastIndexOf(".");
+        return Paths.get(path,actualFilename.substring(0, index == -1 ? actualFilename.length() : index).concat(extension)).toString();
     }
 
     /**

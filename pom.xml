@@ -54,7 +54,7 @@
 
     <properties>
         <package-name>net.imglib2.roi.io</package-name>
-        <imglib2-roi.version>0.10.4</imglib2-roi.version>
+        <imglib2-roi.version>0.11.0</imglib2-roi.version>
         <license.licenseName>bsd_2</license.licenseName>
         <license.projectName>ImgLib2: a general-purpose, multidimensional image processing library.</license.projectName>
         <license.organizationName>ImgLib2 authors</license.organizationName>

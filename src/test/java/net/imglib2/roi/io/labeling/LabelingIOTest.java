@@ -54,6 +54,7 @@ import org.scijava.Context;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -70,8 +71,15 @@ public class LabelingIOTest {
         ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
         ImgLabelingContainer container = new ImgLabelingContainer();
         container.setImgLabeling(labeling);
-        new LabelingIO(context, context.getService(DatasetIOService.class)).saveLabeling(container, File.createTempFile("labelSaveTestSimple", ".tif").getAbsolutePath());
+        Map<String, Set<Integer>> sources = new HashMap<>();
+        Set set = new HashSet<>();
+        set.add(1);
+        set.add(13);
+        set.add(42);
+        sources.put("1",set);
+        new LabelingIO(context, context.getService(DatasetIOService.class)).saveLabeling(container, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath());
     }
+
 
     @Test
     public void loadLabelingPrimitiveTest() throws IOException {
@@ -82,12 +90,12 @@ public class LabelingIOTest {
 
     @Test
     public void saveLabelingComplexWithCodecTest() throws IOException {
-        ImgLabeling<Example, UnsignedByteType> labeling = getComplexImgLabeling();
+        ImgLabeling<Example, IntType> labeling = getComplexImgLabeling();
         LabelingIO io = new LabelingIO(context, context.getService(DatasetIOService.class));
         io.addCodecs(new ExampleCodec());
         ImgLabelingContainer container = new ImgLabelingContainer();
         container.setImgLabeling(labeling);
-        io.saveLabeling(container, File.createTempFile("labelSaveTestComplex", ".tif").getAbsolutePath(), Example.class);
+        io.saveLabeling(container, new File("src/test/resources/labeling/labelSaveTestComplex.tif").getAbsolutePath(), Example.class);
      }
 
     @Test
@@ -101,14 +109,14 @@ public class LabelingIOTest {
 
     @Test
     public void saveLabelingComplexWithFunctionTest() throws IOException {
-        ImgLabeling<Example, UnsignedByteType> labeling = getComplexImgLabeling();
+        ImgLabeling<Example, IntType> labeling = getComplexImgLabeling();
         LabelingIO io = new LabelingIO(context, context.getService(DatasetIOService.class));
         Map<Example, Long> mapping = new HashMap<>();
         AtomicLong atomicLong = new AtomicLong(0);
         labeling.getMapping().getLabels().forEach(label -> mapping.put(label, atomicLong.getAndIncrement()));
         ImgLabelingContainer container = new ImgLabelingContainer();
         container.setImgLabeling(labeling);
-        io.saveLabeling(container, File.createTempFile("labelSaveTestComplexFunction", ".tif").getAbsolutePath(), mapping::get);
+        io.saveLabeling(container, new File("src/test/resources/labeling/labelSaveTestComplexFunction.tif").getAbsolutePath(), mapping::get);
    }
 
     @Test
@@ -142,12 +150,12 @@ public class LabelingIOTest {
         return ImgLabeling.fromImageAndLabelSets(indexImg, labelSets);
     }
 
-    private ImgLabeling<Example, UnsignedByteType> getComplexImgLabeling() {
+    private ImgLabeling<Example, IntType> getComplexImgLabeling() {
         Example[] values1 = new Example[]{new Example("a", 1.0, 1), new Example("b", 2.24121, 2)};
         Example[] values2 = new Example[]{new Example("a", 1.0, 1)};
         Example[] values3 = new Example[]{new Example("b", 2.24121, 2), new Example("a", 1.0, 1), new Example("a", 1.0, 3)};
         // setup
-        Img<UnsignedByteType> indexImg = ArrayImgs.unsignedBytes(new byte[]{1, 0, 2}, 3);
+        Img<IntType> indexImg = ArrayImgs.ints(new int[]{1, 0, 2}, 3);
         List<Set<Example>> labelSets = Arrays.asList(asSet(), asSet(values1), asSet(values2), asSet(values3));
         return ImgLabeling.fromImageAndLabelSets(indexImg, labelSets);
     }
