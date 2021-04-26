@@ -67,6 +67,13 @@ public class LabelingIOTest {
     }
 
     @Test
+    public void test() throws IOException {
+        LabelingIO labelingIO =  new LabelingIO(context, context.getService(DatasetIOService.class));
+        ImgLabelingContainer container = labelingIO.loadLabeling("src/test/resources/labeling/example1.bson");
+        labelingIO.saveLabeling(container, "src/test/resources/labeling/example1_sav.bson");
+    }
+
+    @Test
     public void saveLabelingPrimitiveTest() throws IOException {
         ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
         ImgLabelingContainer container = new ImgLabelingContainer();
