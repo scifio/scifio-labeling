@@ -33,6 +33,7 @@
  */
 package net.imglib2.roi.io.labeling;
 
+import io.scif.config.SCIFIOConfig;
 import io.scif.img.ImgIOException;
 import io.scif.img.ImgSaver;
 import io.scif.services.DatasetIOService;
@@ -114,8 +115,8 @@ public class LabelingIO {
      * @param <I> the value type of the image
      */
     <T, I extends IntegerType<I>> void saveLabeling(ImgLabelingContainer<T, I> imgLabelingContainer, String fileName, Class clazz) {
-
         LabelingMappingCodec<T> labelingMappingCodec = new LabelingMappingCodec.Builder<T>().setIndexImg(getFilePathWithExtension(fileName, TIF_ENDING, Paths.get(fileName).getParent().toString())).setClazz(clazz).setCodecRegistry(registry).build();
+        labelingMappingCodec.setIndexImg(getFilePathWithExtension(fileName, TIF_ENDING, ""));
         BasicOutputBuffer outputBuffer = new BasicOutputBuffer();
         BsonBinaryWriter writer = new BsonBinaryWriter(outputBuffer);
         LabelingContainer container = new LabelingContainer();
@@ -169,7 +170,6 @@ public class LabelingIO {
             container.setSourceToLabel(imgLabelingContainer.getSourceToLabel());
         labelingMappingCodec.encode(writer, container, EncoderContext.builder().isEncodingCollectibleDocument(false).build());
         writeToFile(outputBuffer, new File(getFilePathWithExtension(fileName, BSON_ENDING, Paths.get(fileName).getParent().toString())));
-
         final Img<I> img = ImgView.wrap(imgLabelingContainer.getImgLabeling().getIndexImg(), null);
         saveAsTiff(getFilePathWithExtension(fileName, TIF_ENDING, Paths.get(fileName).getParent().toString()), img);
     }
@@ -225,7 +225,7 @@ public class LabelingIO {
             final RandomAccessibleInterval<T> rai) {
 
 		try {
-			new ImgSaver( context ).saveImg( filename, ImgView.wrap( rai, null ) );
+			new ImgSaver( context ).saveImg( filename, ImgView.wrap( rai, null ), new SCIFIOConfig().writerSetFailIfOverwriting(false));
 		} catch ( ImgIOException | IncompatibleTypeException e ) {
 			e.printStackTrace();
 		}

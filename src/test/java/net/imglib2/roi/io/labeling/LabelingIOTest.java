@@ -49,7 +49,9 @@ import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
+import org.junit.runners.MethodSorters;
 import org.scijava.Context;
 
 import java.io.File;
@@ -89,7 +91,7 @@ public class LabelingIOTest {
 
 
     @Test
-    public void loadLabelingPrimitiveTest() throws IOException {
+    public void openLabelingPrimitiveTest() throws IOException {
         ImgLabelingContainer<Integer, IntType> container = new LabelingIO(context, context.getService(DatasetIOService.class)).loadLabeling("src/test/resources/labeling/labelSaveTestSimple.bson", Integer.class);
         ImgLabeling<Integer, IntType> mapping = container.getImgLabeling();
         Assert.assertEquals(getSimpleImgLabeling().getMapping().getLabels(), mapping.getMapping().getLabels());
@@ -106,7 +108,7 @@ public class LabelingIOTest {
      }
 
     @Test
-    public void loadLabelingComplexWithCodecTest() throws IOException {
+    public void openLabelingComplexWithCodecTest() throws IOException {
         LabelingIO io = new LabelingIO(context, context.getService(DatasetIOService.class));
         io.addCodecs(new ExampleCodec());
         ImgLabelingContainer<Example, IntType> container = io.loadLabeling("src/test/resources/labeling/labelSaveTestComplex.bson", Example.class);
@@ -127,7 +129,7 @@ public class LabelingIOTest {
    }
 
     @Test
-    public void loadLabelingComplexWithFunctionTest() throws IOException {
+    public void openLabelingComplexWithFunctionTest() throws IOException {
         Set<Example> labels = getComplexImgLabeling().getMapping().getLabels();
         LabelingIO io = new LabelingIO(context, context.getService(DatasetIOService.class));
         Map<Long, Example> map = new HashMap<>();

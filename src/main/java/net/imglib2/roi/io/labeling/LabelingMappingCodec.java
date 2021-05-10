@@ -166,23 +166,6 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
         return (Set<T>) labelSet;
     }
 
-    private List<Set<T>> readLabelSets(BsonReader reader, DecoderContext decoderContext, int numSets, Map<Integer, T> mapping) {
-        List<Set<T>> labelSets = new ArrayList<>();
-        reader.readStartDocument();
-        for (int i = 0; i < numSets; i++) {
-            Set<T> labelSet = Collections.emptySortedSet();
-            reader.readStartArray();
-            while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
-                labelSet.add(mapping.get(reader.readInt32()));
-            }
-            reader.readEndArray();
-            labelSets.add(labelSet);
-
-        }
-        reader.readEndDocument();
-        return labelSets;
-    }
-
     @Override
     public void encode(BsonWriter writer, LabelingContainer<T> value, EncoderContext encoderContext) {
         LabelingMapping<T> labelingMapping = value.getLabelingMapping();
@@ -278,58 +261,6 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
 
         reader.readEndDocument();
         return mapping;
-    }
-
-    private List<Set<T>> readLabelSets(BsonReader reader, DecoderContext decoderContext, int numSets) {
-        List<Set<T>> labelSets = new ArrayList<>();
-        reader.readStartDocument();
-        for (int i = 0; i < numSets; i++) {
-
-            Set<T> labelSet = new HashSet<>();
-            reader.readStartArray();
-
-            while (reader.readBsonType() != BsonType.END_OF_DOCUMENT) {
-                if (idToLabel != null) {
-                    switch (reader.getCurrentBsonType()) {
-                        case INT32:
-                            labelSet.add(idToLabel.apply(reader.readInt32()));
-                            break;
-                        case INT64:
-                            labelSet.add(idToLabel.apply(reader.readInt64()));
-                            break;
-                    }
-                } else {
-                    switch (reader.getCurrentBsonType()) {
-                        case INT32:
-                            Integer intValue = reader.readInt32();
-                            labelSet.add((T) intValue);
-                            break;
-                        case INT64:
-                            Long longValue = reader.readInt64();
-                            labelSet.add((T) longValue);
-                            break;
-                        case BOOLEAN:
-                            Boolean booleanValue = reader.readBoolean();
-                            labelSet.add((T) booleanValue);
-                            break;
-                        case STRING:
-                            String stringValue = reader.readString();
-                            labelSet.add((T) stringValue);
-                            break;
-                        case DOCUMENT:
-                            labelSet.add((T) (codecRegistry.get(clazz).decode(reader, decoderContext)));
-                            break;
-                        default:
-                            System.out.println("Type currently not supported. " + reader.getCurrentBsonType());
-                    }
-                }
-            }
-
-            reader.readEndArray();
-            labelSets.add(labelSet);
-        }
-        reader.readEndDocument();
-        return labelSets;
     }
 
     private void writeValue(Object v, BsonWriter writer, EncoderContext encoderContext) {
