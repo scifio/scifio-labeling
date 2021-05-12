@@ -11,13 +11,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -33,10 +33,8 @@
  */
 package net.imglib2.roi.io.labeling.tutorials;
 
-import io.scif.services.DatasetIOService;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgs;
-import net.imglib2.roi.io.labeling.LabelingIO;
 import net.imglib2.roi.io.labeling.LabelingIOService;
 import net.imglib2.roi.io.labeling.data.ImgLabelingContainer;
 import net.imglib2.roi.labeling.ImgLabeling;
@@ -46,7 +44,6 @@ import org.junit.Test;
 import org.scijava.Context;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 public class E02_SaveLabeling {
@@ -60,7 +57,7 @@ public class E02_SaveLabeling {
 
 
     @Test
-    public void saveLabelingTest() throws IOException {
+    public void saveLabelingTest() {
         ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
         ImgLabelingContainer<Integer, UnsignedByteType> container = new ImgLabelingContainer<>();
         container.setImgLabeling(labeling);
@@ -69,7 +66,8 @@ public class E02_SaveLabeling {
         set.add(1);
         set.add(13);
         set.add(42);
-        sources.put("1",set);
+        sources.put("1", set);
+        container.setSourceToLabel(sources);
 
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);

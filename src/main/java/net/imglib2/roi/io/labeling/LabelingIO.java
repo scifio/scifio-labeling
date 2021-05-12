@@ -11,13 +11,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -78,18 +78,14 @@ import java.util.function.ToLongFunction;
  */
 public class LabelingIO {
 
-    private final DatasetIOService datasetIOService;
-
-    private final Context context;
-
     private static final String BSON_ENDING = ".bson";
-
     private static final String TIF_ENDING = ".tif";
-
+    private final DatasetIOService datasetIOService;
+    private final Context context;
     CodecRegistry registry = CodecRegistries.fromProviders(new BsonValueCodecProvider(), new DocumentCodecProvider()
             , new ValueCodecProvider());
 
-    public LabelingIO(Context context, DatasetIOService datasetIOService){
+    public LabelingIO(Context context, DatasetIOService datasetIOService) {
         this.context = context;
         this.datasetIOService = datasetIOService;
         addCodecs(new BsonArrayCodec(registry));
@@ -108,11 +104,11 @@ public class LabelingIO {
      * For the save to work correctly with non-primitive types, a codec must be added to the registry through
      * one of the available methods in this class.
      *
-     * @param imgLabelingContainer  the complete labeling data
-     * @param clazz        the class that represents one label
-     * @param fileName     the path to the file
-     * @param <T> the class that represents a label
-     * @param <I> the value type of the image
+     * @param imgLabelingContainer the complete labeling data
+     * @param clazz                the class that represents one label
+     * @param fileName             the path to the file
+     * @param <T>                  the class that represents a label
+     * @param <I>                  the value type of the image
      */
     <T, I extends IntegerType<I>> void saveLabeling(ImgLabelingContainer<T, I> imgLabelingContainer, String fileName, Class clazz) {
         LabelingMappingCodec<T> labelingMappingCodec = new LabelingMappingCodec.Builder<T>().setIndexImg(getFilePathWithExtension(fileName, TIF_ENDING, Paths.get(fileName).getParent().toString())).setClazz(clazz).setCodecRegistry(registry).build();
@@ -121,7 +117,7 @@ public class LabelingIO {
         BsonBinaryWriter writer = new BsonBinaryWriter(outputBuffer);
         LabelingContainer container = new LabelingContainer();
         container.setLabelingMapping(imgLabelingContainer.getImgLabeling().getMapping());
-        if(imgLabelingContainer.getSourceToLabel() != null)
+        if (imgLabelingContainer.getSourceToLabel() != null)
             container.setSourceToLabel(imgLabelingContainer.getSourceToLabel());
         labelingMappingCodec.encode(writer, container, EncoderContext.builder().isEncodingCollectibleDocument(false).build());
         writeToFile(outputBuffer, new File(getFilePathWithExtension(fileName, BSON_ENDING, Paths.get(fileName).getParent().toString())));
@@ -135,8 +131,8 @@ public class LabelingIO {
      * For the load to work correctly with non-primitive types, a codec must be added to the registry through
      * one of the available methods in this class.
      *
-     * @param <T> the class that represents a label
-     * @param <I> the value type of the image
+     * @param <T>      the class that represents a label
+     * @param <I>      the value type of the image
      * @param fileName the path to the file
      * @param clazz    can be null if labeling is a primitive type
      * @return the Labeling in the file
@@ -148,15 +144,15 @@ public class LabelingIO {
         FileChannel inChannel = aFile.getChannel();
         MappedByteBuffer buffer = inChannel.map(FileChannel.MapMode.READ_ONLY, 0, inChannel.size());
         BsonReader bsonReader = new BsonBinaryReader(buffer);
-        LabelingContainer<T> container =labelingMappingCodec.decode(bsonReader, DecoderContext.builder().build());
+        LabelingContainer<T> container = labelingMappingCodec.decode(bsonReader, DecoderContext.builder().build());
         LabelingMapping<T> labelingMapping = container.getLabelingMapping();
         Img<I> indexImg = null;
-        if(datasetIOService.canOpen(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING, Paths.get(fileName).getParent().toString()))){
+        if (datasetIOService.canOpen(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING, Paths.get(fileName).getParent().toString()))) {
             indexImg = (Img<I>) datasetIOService.open(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING, Paths.get(fileName).getParent().toString())).getImgPlus().getImg();
-        }else{
+        } else {
             throw new IOException("Image referred to in bson-file could not be opened");
         }
-        return new ImgLabelingContainer<T,I>(ImgLabeling.fromImageAndLabelSets(indexImg, labelingMapping.getLabelSets()), container.getSourceToLabel());
+        return new ImgLabelingContainer<T, I>(ImgLabeling.fromImageAndLabelSets(indexImg, labelingMapping.getLabelSets()), container.getSourceToLabel());
     }
 
     public <T, I extends IntegerType<I>> void saveLabeling(ImgLabelingContainer<T, I> imgLabelingContainer, String fileName, ToLongFunction<T> labelToId) {
@@ -166,7 +162,7 @@ public class LabelingIO {
         BsonBinaryWriter writer = new BsonBinaryWriter(outputBuffer);
         LabelingContainer container = new LabelingContainer();
         container.setLabelingMapping(imgLabelingContainer.getImgLabeling().getMapping());
-        if(imgLabelingContainer.getSourceToLabel() != null)
+        if (imgLabelingContainer.getSourceToLabel() != null)
             container.setSourceToLabel(imgLabelingContainer.getSourceToLabel());
         labelingMappingCodec.encode(writer, container, EncoderContext.builder().isEncodingCollectibleDocument(false).build());
         writeToFile(outputBuffer, new File(getFilePathWithExtension(fileName, BSON_ENDING, Paths.get(fileName).getParent().toString())));
@@ -184,15 +180,15 @@ public class LabelingIO {
         MappedByteBuffer buffer = inChannel.map(FileChannel.MapMode.READ_ONLY, 0, inChannel.size());
         BsonReader bsonReader = new BsonBinaryReader(buffer);
 
-        LabelingContainer<T> container =labelingMappingCodec.decode(bsonReader, DecoderContext.builder().build());
+        LabelingContainer<T> container = labelingMappingCodec.decode(bsonReader, DecoderContext.builder().build());
         LabelingMapping<T> labelingMapping = container.getLabelingMapping();
         Img<I> indexImg = null;
-        if(datasetIOService.canOpen(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING, labelingFile.getParent().toString()))){
+        if (datasetIOService.canOpen(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING, labelingFile.getParent().toString()))) {
             indexImg = (Img<I>) datasetIOService.open(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING, labelingFile.getParent().toString())).getImgPlus().getImg();
-        }else{
+        } else {
             throw new IOException("Image referred to in bson-file could not be opened");
         }
-        return new ImgLabelingContainer<T,I>(ImgLabeling.fromImageAndLabelSets(indexImg, labelingMapping.getLabelSets()), container.getSourceToLabel());
+        return new ImgLabelingContainer<T, I>(ImgLabeling.fromImageAndLabelSets(indexImg, labelingMapping.getLabelSets()), container.getSourceToLabel());
     }
 
     private void writeToFile(BasicOutputBuffer outputBuffer, File file) {
@@ -204,18 +200,16 @@ public class LabelingIO {
     }
 
     private String getFilePathWithExtension(final String filename, final String extension, String path) {
-        path = (path==null)?"":path;
+        path = (path == null) ? "" : path;
         String actualFilename = Paths.get(filename).getFileName().toString();
         if (actualFilename.endsWith(extension)) {
             return Paths.get(path, actualFilename).toString();
         }
         final int index = actualFilename.lastIndexOf(".");
-        return Paths.get(path,actualFilename.substring(0, index == -1 ? actualFilename.length() : index).concat(extension)).toString();
+        return Paths.get(path, actualFilename.substring(0, index == -1 ? actualFilename.length() : index).concat(extension)).toString();
     }
 
     /**
-     *
-     *
      * @param filename
      * @param rai
      * @param <T>
@@ -224,11 +218,11 @@ public class LabelingIO {
             final String filename,
             final RandomAccessibleInterval<T> rai) {
 
-		try {
-			new ImgSaver( context ).saveImg( filename, ImgView.wrap( rai, null ), new SCIFIOConfig().writerSetFailIfOverwriting(false));
-		} catch ( ImgIOException | IncompatibleTypeException e ) {
-			e.printStackTrace();
-		}
+        try {
+            new ImgSaver(context).saveImg(filename, ImgView.wrap(rai, null), new SCIFIOConfig().writerSetFailIfOverwriting(false));
+        } catch (ImgIOException | IncompatibleTypeException e) {
+            e.printStackTrace();
+        }
     }
 
     public CodecRegistry getRegistry() {
@@ -266,7 +260,7 @@ public class LabelingIO {
      * Adds one or more {@link Codec} to the current registry.
      *
      * @param codecs a number of codecs to merge into the existing registry
-     * @param <T> the class the codec encodes
+     * @param <T>    the class the codec encodes
      */
     @SafeVarargs
     public final <T> void addCodecs(Codec<T>... codecs) {

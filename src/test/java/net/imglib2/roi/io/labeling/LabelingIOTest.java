@@ -11,13 +11,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -39,7 +39,6 @@ import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.roi.io.labeling.data.ImgLabelingContainer;
 import net.imglib2.roi.io.labeling.data.LabelingContainer;
 import net.imglib2.roi.labeling.ImgLabeling;
-import net.imglib2.roi.labeling.LabelingMapping;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import org.bson.BsonReader;
@@ -49,14 +48,11 @@ import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.FixMethodOrder;
 import org.junit.Test;
-import org.junit.runners.MethodSorters;
 import org.scijava.Context;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -70,7 +66,7 @@ public class LabelingIOTest {
 
     @Test
     public void test() throws IOException {
-        LabelingIO labelingIO =  new LabelingIO(context, context.getService(DatasetIOService.class));
+        LabelingIO labelingIO = new LabelingIO(context, context.getService(DatasetIOService.class));
         ImgLabelingContainer container = labelingIO.loadLabeling("src/test/resources/labeling/example1.bson");
         labelingIO.saveLabeling(container, "src/test/resources/labeling/example1_sav.bson");
     }
@@ -85,7 +81,7 @@ public class LabelingIOTest {
         set.add(1);
         set.add(13);
         set.add(42);
-        sources.put("1",set);
+        sources.put("1", set);
         new LabelingIO(context, context.getService(DatasetIOService.class)).saveLabeling(container, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath());
     }
 
@@ -105,7 +101,7 @@ public class LabelingIOTest {
         ImgLabelingContainer container = new ImgLabelingContainer();
         container.setImgLabeling(labeling);
         io.saveLabeling(container, new File("src/test/resources/labeling/labelSaveTestComplex.tif").getAbsolutePath(), Example.class);
-     }
+    }
 
     @Test
     public void openLabelingComplexWithCodecTest() throws IOException {
@@ -126,7 +122,7 @@ public class LabelingIOTest {
         ImgLabelingContainer container = new ImgLabelingContainer();
         container.setImgLabeling(labeling);
         io.saveLabeling(container, new File("src/test/resources/labeling/labelSaveTestComplexFunction.tif").getAbsolutePath(), mapping::get);
-   }
+    }
 
     @Test
     public void openLabelingComplexWithFunctionTest() throws IOException {
@@ -167,6 +163,11 @@ public class LabelingIOTest {
         Img<IntType> indexImg = ArrayImgs.ints(new int[]{1, 0, 2}, 3);
         List<Set<Example>> labelSets = Arrays.asList(asSet(), asSet(values1), asSet(values2), asSet(values3));
         return ImgLabeling.fromImageAndLabelSets(indexImg, labelSets);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> Set<T> asSet(T... values) {
+        return new TreeSet<>(Arrays.asList(values));
     }
 
     private static class ExampleCodec implements Codec<Example> {
@@ -231,11 +232,6 @@ public class LabelingIOTest {
         public int compareTo(Example o) {
             return this.equals(o) ? 0 : 1;
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> Set<T> asSet(T... values) {
-        return new TreeSet<>(Arrays.asList(values));
     }
 
 }

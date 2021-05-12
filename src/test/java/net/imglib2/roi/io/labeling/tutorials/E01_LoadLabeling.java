@@ -11,13 +11,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -45,7 +45,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.scijava.Context;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -60,7 +59,7 @@ public class E01_LoadLabeling {
 
 
     @Test
-    public void loadBasicLabeling() throws IOException {
+    public void loadBasicLabeling() {
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
         // open a bson file with IntType labels
@@ -76,7 +75,7 @@ public class E01_LoadLabeling {
     }
 
     @Test
-    public void loadBasicLabeling2() throws IOException {
+    public void loadBasicLabeling2() {
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
         // open a bson file with IntType labels
@@ -92,7 +91,7 @@ public class E01_LoadLabeling {
     }
 
     @Test
-    public void loadFunctionBasedLabeling() throws IOException {
+    public void loadFunctionBasedLabeling() {
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
         // creating a mapping for label value to class
@@ -112,7 +111,7 @@ public class E01_LoadLabeling {
 
     // ToDo: fix usage of mapping
     @Test
-    public void loadClassBasedLabeling(){
+    public void loadClassBasedLabeling() {
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
         ImgLabelingContainer<Example, IntType> container = labelingIOService.open("src/test/resources/labeling/labelSaveTestComplex.bson", Example.class, new ExampleCodec());

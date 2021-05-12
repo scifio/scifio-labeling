@@ -11,13 +11,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -39,12 +39,10 @@ import net.imglib2.type.logic.BoolType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.integer.LongType;
 import org.bson.*;
-import org.bson.codecs.BsonValueCodecProvider;
 import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistry;
-
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -109,32 +107,32 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
         this.indexImg = reader.readString("indexImg");
 
         Map<Integer, T> mapping = readMapping(reader, decoderContext, clazz);
-        LabelingContainer<T> container = readLabelSetsContainer(reader,decoderContext, numSets, numSources, mapping);
+        LabelingContainer<T> container = readLabelSetsContainer(reader, decoderContext, numSets, numSources, mapping);
         labelingMapping.setLabelSets(container.getLabelSets());
         container.setLabelingMapping(labelingMapping);
 
         return container;
     }
 
-    private LabelingContainer<T> readLabelSetsContainer(BsonReader reader, DecoderContext decoderContext, int numSets, int numSources, Map<Integer, T> mapping){
+    private LabelingContainer<T> readLabelSetsContainer(BsonReader reader, DecoderContext decoderContext, int numSets, int numSources, Map<Integer, T> mapping) {
         LabelingContainer container = new LabelingContainer<>();
         List<Set<T>> labelSets = new ArrayList<>();
         reader.readStartDocument();
         for (int i = 0; i < numSets; i++) {
             Set<T> labelSet = null;
             BsonType bsonType = reader.readBsonType();
-            if(bsonType == BsonType.DOCUMENT){
+            if (bsonType == BsonType.DOCUMENT) {
                 reader.readStartDocument();
                 labelSet = readLabelSet(reader, decoderContext, mapping);
                 reader.readEndDocument();
-            }else{
+            } else {
                 labelSet = readLabelSet(reader, decoderContext, mapping);
             }
             labelSets.add(labelSet);
         }
         reader.readEndDocument();
         container.setLabelSets(labelSets);
-        if(reader.readBsonType().equals(BsonType.DOCUMENT)){
+        if (reader.readBsonType().equals(BsonType.DOCUMENT)) {
             BsonDocument bsonDocument = getCodecRegistry().get(BsonDocument.class).decode(reader, decoderContext);
             for (Map.Entry<String, BsonValue> entry : bsonDocument.entrySet())
                 for (BsonValue value : entry.getValue().asArray()) {
@@ -146,21 +144,20 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
 
     private Set<T> readLabelSet(BsonReader reader, DecoderContext decoderContext, Map<Integer, T> mapping) {
         //Set<T> labelSet = new TreeSet<>();
-        BsonArray bsonValues = getCodecRegistry().get(BsonArray.class).decode(reader,decoderContext);
-        Set<?> labelSet = bsonValues.stream().map(v->{
+        BsonArray bsonValues = getCodecRegistry().get(BsonArray.class).decode(reader, decoderContext);
+        Set<?> labelSet = bsonValues.stream().map(v -> {
             if (v.isInt32())
                 return v.asInt32().intValue();
             else
                 return v.asInt64().intValue();
-        }).map(v->{
-            if (getIdToLabel()!=null)
+        }).map(v -> {
+            if (getIdToLabel() != null)
                 return getIdToLabel().apply(v);
-            else if(!mapping.isEmpty())
+            else if (!mapping.isEmpty())
                 return mapping.get(v);
             else
                 return v;
         }).collect(Collectors.toSet());
-
 
 
         return (Set<T>) labelSet;
@@ -213,19 +210,19 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
             writer.writeStartDocument("labelSets");
             for (int i = 0; i < labelingMapping.numSets(); i++) {
                 Set<T> labelSet = labelingMapping.labelsAtIndex(i);
-                if(value.getSourceToLabel() != null){
+                if (value.getSourceToLabel() != null) {
                     writer.writeStartDocument(Integer.toString(i));
                     writer.writeStartArray("set");
                     labelSet.forEach(v -> writeValue(v, writer, encoderContext));
                     writer.writeEndArray();
-                    for(Map.Entry<String,Set<Integer>> entry : value.getSourceToLabel().entrySet()){
-                        if(entry.getValue().contains(i)){
-                            writer.writeString("source",entry.getKey());
+                    for (Map.Entry<String, Set<Integer>> entry : value.getSourceToLabel().entrySet()) {
+                        if (entry.getValue().contains(i)) {
+                            writer.writeString("source", entry.getKey());
                             break;
                         }
                     }
                     writer.writeEndDocument();
-                }else{
+                } else {
                     writer.writeStartArray(Integer.toString(i));
                     labelSet.forEach(v -> writeValue(v, writer, encoderContext));
                     writer.writeEndArray();
@@ -233,11 +230,11 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
             }
             writer.writeEndDocument();
         }
-        if(!value.getSourceToLabel().isEmpty()){
+        if (!value.getSourceToLabel().isEmpty()) {
             writer.writeStartDocument("segmentationSource");
-            for(Map.Entry<String, Set<Integer>> entry : value.getSourceToLabel().entrySet()){
+            for (Map.Entry<String, Set<Integer>> entry : value.getSourceToLabel().entrySet()) {
                 writer.writeStartArray(entry.getKey());
-                for(Integer i : entry.getValue()){
+                for (Integer i : entry.getValue()) {
                     writer.writeInt32(i);
                 }
                 writer.writeEndArray();
