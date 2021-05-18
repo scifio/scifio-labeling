@@ -11,13 +11,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
 /**
  * A codec (encoder/decoder) for the LabelingMapping class to and from the BSON (binary JSON) data type.
  * The resulting data structure consists of the number of sets, a mapping from complex type to integer
- * as well as the actual label sets. The Codec class is used in the {@link net.imglib2.roi.io.labeling.LabelingIO} class and handles
+ * as well as the actual label sets. The Codec class is used in the LabelingIO class and handles
  * the basic structure. For non-primitive label types, an additional codec must be written.
  * V1 Data structure:
  * // @formatter:off
@@ -78,7 +78,7 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
     private final static int VERSION = 1;
     private static final Set<Class> WRAPPER_TYPES = new HashSet(Arrays.asList(IntType.class, LongType.class, BoolType.class,
             Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class, Void.class, String.class));
-    private Class clazz;
+    private final Class clazz;
     private CodecRegistry codecRegistry;
     private String indexImg;
     private LongFunction<T> idToLabel;
@@ -99,7 +99,7 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
 
     @Override
     public LabelingContainer<T> decode(BsonReader reader, DecoderContext decoderContext) {
-        LabelingMapping<T> labelingMapping = new LabelingMapping<T>(new IntType());
+        LabelingMapping<T> labelingMapping = new LabelingMapping<>(new IntType());
         reader.readStartDocument();
         int version = reader.readInt32("version");
         int numSets = reader.readInt32("numSets");
@@ -119,7 +119,7 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
         List<Set<T>> labelSets = new ArrayList<>();
         reader.readStartDocument();
         for (int i = 0; i < numSets; i++) {
-            Set<T> labelSet = null;
+            Set<T> labelSet;
             BsonType bsonType = reader.readBsonType();
             if (bsonType == BsonType.DOCUMENT) {
                 reader.readStartDocument();
@@ -391,7 +391,7 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
         }
 
         public LabelingMappingCodec<T> build() {
-            return new LabelingMappingCodec<T>(this);
+            return new LabelingMappingCodec<>(this);
         }
 
     }

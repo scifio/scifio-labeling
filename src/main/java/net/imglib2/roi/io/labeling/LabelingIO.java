@@ -11,13 +11,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -136,7 +136,6 @@ public class LabelingIO {
      * @param fileName the path to the file
      * @param clazz    can be null if labeling is a primitive type
      * @return the Labeling in the file
-     * @throws IOException
      */
     public <T, I extends IntegerType<I>> ImgLabelingContainer<T, I> loadLabeling(String fileName, Class<T> clazz) throws IOException {
         LabelingMappingCodec<T> labelingMappingCodec = new LabelingMappingCodec.Builder<T>().setIndexImg(getFilePathWithExtension(fileName, TIF_ENDING, "")).setClazz(clazz).setCodecRegistry(registry).build();
@@ -146,13 +145,13 @@ public class LabelingIO {
         BsonReader bsonReader = new BsonBinaryReader(buffer);
         LabelingContainer<T> container = labelingMappingCodec.decode(bsonReader, DecoderContext.builder().build());
         LabelingMapping<T> labelingMapping = container.getLabelingMapping();
-        Img<I> indexImg = null;
+        Img<I> indexImg;
         if (datasetIOService.canOpen(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING, Paths.get(fileName).getParent().toString()))) {
             indexImg = (Img<I>) datasetIOService.open(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING, Paths.get(fileName).getParent().toString())).getImgPlus().getImg();
         } else {
             throw new IOException("Image referred to in bson-file could not be opened");
         }
-        return new ImgLabelingContainer<T, I>(ImgLabeling.fromImageAndLabelSets(indexImg, labelingMapping.getLabelSets()), container.getSourceToLabel());
+        return new ImgLabelingContainer<>(ImgLabeling.fromImageAndLabelSets(indexImg, labelingMapping.getLabelSets()), container.getSourceToLabel());
     }
 
     public <T, I extends IntegerType<I>> void saveLabeling(ImgLabelingContainer<T, I> imgLabelingContainer, String fileName, ToLongFunction<T> labelToId) {
@@ -182,13 +181,13 @@ public class LabelingIO {
 
         LabelingContainer<T> container = labelingMappingCodec.decode(bsonReader, DecoderContext.builder().build());
         LabelingMapping<T> labelingMapping = container.getLabelingMapping();
-        Img<I> indexImg = null;
+        Img<I> indexImg;
         if (datasetIOService.canOpen(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING, labelingFile.getParent().toString()))) {
             indexImg = (Img<I>) datasetIOService.open(getFilePathWithExtension(labelingMappingCodec.getIndexImg(), TIF_ENDING, labelingFile.getParent().toString())).getImgPlus().getImg();
         } else {
             throw new IOException("Image referred to in bson-file could not be opened");
         }
-        return new ImgLabelingContainer<T, I>(ImgLabeling.fromImageAndLabelSets(indexImg, labelingMapping.getLabelSets()), container.getSourceToLabel());
+        return new ImgLabelingContainer<>(ImgLabeling.fromImageAndLabelSets(indexImg, labelingMapping.getLabelSets()), container.getSourceToLabel());
     }
 
     private void writeToFile(BasicOutputBuffer outputBuffer, File file) {
@@ -210,9 +209,9 @@ public class LabelingIO {
     }
 
     /**
-     * @param filename
-     * @param rai
-     * @param <T>
+     * @param filename  the filename of the Img to save
+     * @param rai   the img
+     * @param <T>   the pixel value
      */
     private <T extends RealType<T>> void saveAsTiff(
             final String filename,

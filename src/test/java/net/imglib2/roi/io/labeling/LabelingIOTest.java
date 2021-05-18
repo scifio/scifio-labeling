@@ -11,13 +11,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -72,7 +72,7 @@ public class LabelingIOTest {
     }
 
     @Test
-    public void saveLabelingPrimitiveTest() throws IOException {
+    public void saveLabelingPrimitiveTest() {
         ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
         ImgLabelingContainer container = new ImgLabelingContainer();
         container.setImgLabeling(labeling);
@@ -82,6 +82,7 @@ public class LabelingIOTest {
         set.add(13);
         set.add(42);
         sources.put("1", set);
+        container.setSourceToLabel(sources);
         new LabelingIO(context, context.getService(DatasetIOService.class)).saveLabeling(container, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath());
     }
 
@@ -94,7 +95,7 @@ public class LabelingIOTest {
     }
 
     @Test
-    public void saveLabelingComplexWithCodecTest() throws IOException {
+    public void saveLabelingComplexWithCodecTest() {
         ImgLabeling<Example, IntType> labeling = getComplexImgLabeling();
         LabelingIO io = new LabelingIO(context, context.getService(DatasetIOService.class));
         io.addCodecs(new ExampleCodec());
@@ -113,7 +114,7 @@ public class LabelingIOTest {
     }
 
     @Test
-    public void saveLabelingComplexWithFunctionTest() throws IOException {
+    public void saveLabelingComplexWithFunctionTest() {
         ImgLabeling<Example, IntType> labeling = getComplexImgLabeling();
         LabelingIO io = new LabelingIO(context, context.getService(DatasetIOService.class));
         Map<Example, Long> mapping = new HashMap<>();
@@ -199,11 +200,11 @@ public class LabelingIOTest {
 
     private static class Example implements Comparable<Example> {
 
-        private String a;
+        private final String a;
 
-        private double b;
+        private final double b;
 
-        private int c;
+        private final int c;
 
         public Example(String a, double b, int c) {
             this.a = a;
