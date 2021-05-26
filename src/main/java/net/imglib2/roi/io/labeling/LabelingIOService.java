@@ -35,6 +35,7 @@ package net.imglib2.roi.io.labeling;
 
 import net.imagej.ImageJService;
 import net.imglib2.roi.io.labeling.codecs.LabelingMappingCodec;
+import net.imglib2.roi.io.labeling.data.Container;
 import net.imglib2.roi.io.labeling.data.ImgLabelingContainer;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.IntegerType;
@@ -67,17 +68,6 @@ public interface LabelingIOService extends ImageJService {
      * Load a labeling container from the given file path as string.
      * The file path must point to the bson file containing the labeling data.
      *
-     * @param file The path to the file
-     * @param <T>  the label value
-     * @param <I>  IntegerType for the pixel value
-     * @return a container object holding the ImgLabeling (as well as an optional source mapping)
-     */
-    <T, I extends IntegerType<I>> ImgLabelingContainer<T, I> loadWithMetadata(String file) throws IOException;
-
-    /**
-     * Load a labeling container from the given file path as string.
-     * The file path must point to the bson file containing the labeling data.
-     *
      * @param file   The path to the file
      * @param clazz  The class to convert the contains of the file to
      * @param codecs One or more codecs necessary to convert the data to clazz.
@@ -85,7 +75,7 @@ public interface LabelingIOService extends ImageJService {
      * @param <I>    IntegerType for the pixel value
      * @return a container object holding the ImgLabeling (as well as an optional source mapping)
      */
-    <T, I extends IntegerType<I>> ImgLabelingContainer<T, I> loadWithMetadata(String file, Class<T> clazz, Codec<T>... codecs) throws IOException;
+    <S, T, I extends IntegerType<I>> Container<S, T, I> loadWithMetadata(String file, Class<T> clazz, Class<S> metadataClazz, Codec<?>... codecs) throws IOException;
 
     /**
      * Load a labeling container from the given file path as string.
@@ -97,18 +87,7 @@ public interface LabelingIOService extends ImageJService {
      * @param <I>       IntegerType for the pixel value
      * @return a container object holding the ImgLabeling (as well as an optional source mapping)
      */
-    <T, I extends IntegerType<I>> ImgLabelingContainer<T, I> loadWithMetadata(String file, LongFunction<T> idToLabel) throws IOException;
-
-    /**
-     * Save an ImgLabelingContainer in the file-path, transforming it into a bson file and an image.
-     * The path must contain the filename (ending does not matter).
-     *
-     * @param imgLabelingContainer the container with the ImgLabeling and an optional source map
-     * @param file                 the path pointing to the file, including the filename
-     * @param <T>                  the label value
-     * @param <I>                  IntegerType for the pixel value
-     */
-    <T, I extends IntegerType<I>> void saveWithMetaData(ImgLabelingContainer<T, I> imgLabelingContainer, String file);
+    <S, T, I extends IntegerType<I>> Container<S, T, I> loadWithMetadata(String file, LongFunction<T> idToLabel) throws IOException;
 
     /**
      * Save an ImgLabelingContainer in the file-path, transforming it into a bson file and an image.
@@ -116,23 +95,23 @@ public interface LabelingIOService extends ImageJService {
      *
      * @param clazz                the class of the type T that is contained in the labeling
      * @param codecs               one or more codecs to convert clazz into something bsonifyable
-     * @param imgLabelingContainer the container with the ImgLabeling and an optional source map
+     * @param container            the container with the ImgLabeling and a metadata object
      * @param file                 the path pointing to the file, including the filename
      * @param <T>                  the label value
      * @param <I>                  IntegerType for the pixel value
      */
-    <T, I extends IntegerType<I>> void saveWithMetaData(ImgLabelingContainer<T, I> imgLabelingContainer, String file, Class<T> clazz, Codec<T>... codecs);
+   <S, T, I extends IntegerType<I>> void saveWithMetaData(Container<S, T, I> container, String file, Class<T> clazz, Class<S> metadataClazz, Codec<?>... codecs);
 
     /**
      * Save an ImgLabelingContainer in the file-path, transforming it into a bson file and an image.
      * The path must contain the filename (ending does not matter).
      *
      * @param labelToId            a function to convert the type T to a long value.
-     * @param imgLabelingContainer the container with the ImgLabeling and an optional source map
+     * @param container            the container with the ImgLabeling and a metadata object
      * @param file                 the path pointing to the file, including the filename
      * @param <T>                  the label value
      * @param <I>                  IntegerType for the pixel value
      */
-    <T, I extends IntegerType<I>> void saveWithMetaData(ImgLabelingContainer<T, I> imgLabelingContainer, String file, ToLongFunction<T> labelToId);
+    <S, T, I extends IntegerType<I>> void saveWithMetaData(Container<S, T, I> container, String file, ToLongFunction<T> labelToId);
 
 }
