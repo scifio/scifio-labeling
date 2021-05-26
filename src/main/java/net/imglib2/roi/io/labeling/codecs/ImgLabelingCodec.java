@@ -31,27 +31,41 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package net.imglib2.roi.io.labeling;
+package net.imglib2.roi.io.labeling.codecs;
 
+import io.scif.services.DatasetIOService;
+import net.imglib2.RandomAccessibleInterval;
+import net.imglib2.img.Img;
 import net.imglib2.roi.io.labeling.data.LabelingContainer;
+import net.imglib2.roi.io.labeling.utils.LabelingUtil;
+import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.roi.labeling.LabelingMapping;
 import net.imglib2.type.logic.BoolType;
+import net.imglib2.type.numeric.IntegerType;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.integer.LongType;
-import org.bson.*;
+import org.bson.BsonArray;
+import org.bson.BsonReader;
+import org.bson.BsonType;
+import org.bson.BsonWriter;
 import org.bson.codecs.Codec;
 import org.bson.codecs.DecoderContext;
 import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistry;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.LongFunction;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
 
+import static net.imglib2.roi.io.labeling.utils.LabelingUtil.TIF_ENDING;
+
 /**
- * A codec (encoder/decoder) for the LabelingMapping class to and from the BSON (binary JSON) data type.
+ * A codec (encoder/decoder) for the ImgLabeling class to and from the BSON (binary JSON) data type.
  * The resulting data structure consists of the number of sets, a mapping from complex type to integer
  * as well as the actual label sets. The Codec class is used in the LabelingIO class and handles
  * the basic structure. For non-primitive label types, an additional codec must be written.
@@ -74,7 +88,7 @@ import java.util.stream.Collectors;
  *
  * @author Tom Burke
  */
-public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
+public class ImgLabelingCodec<T, I extends IntegerType<I>> implements Codec<ImgLabeling<T, I>> {
     private final static int VERSION = 1;
     private static final Set<Class> WRAPPER_TYPES = new HashSet(Arrays.asList(IntType.class, LongType.class, BoolType.class,
             Boolean.class, Character.class, Byte.class, Short.class, Integer.class, Long.class, Float.class, Double.class, Void.class, String.class));
@@ -83,13 +97,17 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
     private String indexImg;
     private LongFunction<T> idToLabel;
     private ToLongFunction<T> labelToId;
+    private DatasetIOService datasetIOService;
+    private Path file;
 
-    private LabelingMappingCodec(final Builder<T> builder) {
+    private ImgLabelingCodec(final Builder<T, I> builder) {
         this.clazz = builder.clazz;
         this.codecRegistry = builder.codecRegistry;
         this.indexImg = builder.indexImg;
         this.idToLabel = builder.idToLabel;
         this.labelToId = builder.labelToId;
+        this.datasetIOService = builder.datasetIOService;
+        this.file = builder.file;
 
     }
 
@@ -98,8 +116,9 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
     }
 
     @Override
-    public LabelingContainer<T> decode(BsonReader reader, DecoderContext decoderContext) {
+    public ImgLabeling<T, I> decode(BsonReader reader, DecoderContext decoderContext) {
         LabelingMapping<T> labelingMapping = new LabelingMapping<>(new IntType());
+        String path = this.file.getParent().toString();
         reader.readStartDocument();
         int version = reader.readInt32("version");
         int numSets = reader.readInt32("numSets");
@@ -107,14 +126,17 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
         this.indexImg = reader.readString("indexImg");
 
         Map<Integer, T> mapping = readMapping(reader, decoderContext, clazz);
-        LabelingContainer<T> container = readLabelSetsContainer(reader, decoderContext, numSets, numSources, mapping);
-        labelingMapping.setLabelSets(container.getLabelSets());
-        container.setLabelingMapping(labelingMapping);
-
-        return container;
+        List<Set<T>> labelSets = readLabelSets(reader, decoderContext, numSets, numSources, mapping);
+        RandomAccessibleInterval<I> img = null;
+        try {
+            img = (Img<I>) datasetIOService.open(LabelingUtil.getFilePathWithExtension(indexImg, TIF_ENDING, path)).getImgPlus().getImg();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return ImgLabeling.fromImageAndLabelSets(img,  labelSets);
     }
 
-    private LabelingContainer<T> readLabelSetsContainer(BsonReader reader, DecoderContext decoderContext, int numSets, int numSources, Map<Integer, T> mapping) {
+    private List<Set<T>> readLabelSets(BsonReader reader, DecoderContext decoderContext, int numSets, int numSources, Map<Integer, T> mapping) {
         LabelingContainer container = new LabelingContainer<>();
         List<Set<T>> labelSets = new ArrayList<>();
         reader.readStartDocument();
@@ -132,18 +154,10 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
         }
         reader.readEndDocument();
         container.setLabelSets(labelSets);
-        if (reader.readBsonType().equals(BsonType.DOCUMENT)) {
-            BsonDocument bsonDocument = getCodecRegistry().get(BsonDocument.class).decode(reader, decoderContext);
-            for (Map.Entry<String, BsonValue> entry : bsonDocument.entrySet())
-                for (BsonValue value : entry.getValue().asArray()) {
-                    container.addLabelToSource(entry.getKey(), value.asInt32().intValue());
-                }
-        }
-        return container;
+        return labelSets;
     }
 
     private Set<T> readLabelSet(BsonReader reader, DecoderContext decoderContext, Map<Integer, T> mapping) {
-        //Set<T> labelSet = new TreeSet<>();
         BsonArray bsonValues = getCodecRegistry().get(BsonArray.class).decode(reader, decoderContext);
         Set<?> labelSet = bsonValues.stream().map(v -> {
             if (v.isInt32())
@@ -164,12 +178,12 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
     }
 
     @Override
-    public void encode(BsonWriter writer, LabelingContainer<T> value, EncoderContext encoderContext) {
-        LabelingMapping<T> labelingMapping = value.getLabelingMapping();
+    public void encode(BsonWriter writer, ImgLabeling<T, I> value, EncoderContext encoderContext) {
+        LabelingMapping<T> labelingMapping = value.getMapping();
         writer.writeStartDocument();
         writer.writeInt32("version", VERSION);
         writer.writeInt32("numSets", labelingMapping.numSets());
-        writer.writeInt32("numSources", value.getSourceToLabel().size());
+        writer.writeInt32("numSources", 1);
         writer.writeString("indexImg", indexImg);
         Optional<T> first = labelingMapping.getLabels().stream().findFirst();
         if (first.isPresent() && !isWrapperType(first.get().getClass())) {
@@ -210,39 +224,12 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
             writer.writeStartDocument("labelSets");
             for (int i = 0; i < labelingMapping.numSets(); i++) {
                 Set<T> labelSet = labelingMapping.labelsAtIndex(i);
-                if (value.getSourceToLabel() != null) {
-                    writer.writeStartDocument(Integer.toString(i));
-                    writer.writeStartArray("set");
-                    labelSet.forEach(v -> writeValue(v, writer, encoderContext));
-                    writer.writeEndArray();
-                    for (Map.Entry<String, Set<Integer>> entry : value.getSourceToLabel().entrySet()) {
-                        if (entry.getValue().contains(i)) {
-                            writer.writeString("source", entry.getKey());
-                            break;
-                        }
-                    }
-                    writer.writeEndDocument();
-                } else {
-                    writer.writeStartArray(Integer.toString(i));
-                    labelSet.forEach(v -> writeValue(v, writer, encoderContext));
-                    writer.writeEndArray();
-                }
-            }
-            writer.writeEndDocument();
-        }
-        if (!value.getSourceToLabel().isEmpty()) {
-            writer.writeStartDocument("segmentationSource");
-            for (Map.Entry<String, Set<Integer>> entry : value.getSourceToLabel().entrySet()) {
-                writer.writeStartArray(entry.getKey());
-                for (Integer i : entry.getValue()) {
-                    writer.writeInt32(i);
-                }
+                writer.writeStartArray(Integer.toString(i));
+                labelSet.forEach(v -> writeValue(v, writer, encoderContext));
                 writer.writeEndArray();
             }
             writer.writeEndDocument();
         }
-
-
         writer.writeEndDocument();
     }
 
@@ -292,8 +279,8 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
     }
 
     @Override
-    public Class<LabelingContainer<T>> getEncoderClass() {
-        return (Class<LabelingContainer<T>>) new LabelingContainer<T>().getClass();
+    public Class<ImgLabeling<T, I>> getEncoderClass() {
+        return (Class<ImgLabeling<T, I>>) ImgLabeling.fromImageAndLabels(null, null).getClass();
     }
 
     public Class getClazz() {
@@ -332,7 +319,12 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
         this.labelToId = labelToId;
     }
 
-    public static final class Builder<T> {
+    public static final class Builder<T, I extends IntegerType<I>> {
+
+        private Path file;
+
+        private DatasetIOService datasetIOService;
+
         private Class<T> clazz = null;
 
         private CodecRegistry codecRegistry = null;
@@ -351,17 +343,17 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
          * @param clazz the class that represents a label
          * @return a Builder for a LabelingMappingCodec
          */
-        public Builder<T> setClazz(final Class<T> clazz) {
+        public Builder<T, I> setClazz(final Class<T> clazz) {
             this.clazz = clazz;
             return this;
         }
 
-        public Builder<T> setCodecRegistry(final CodecRegistry codecRegistry) {
+        public Builder<T, I> setCodecRegistry(final CodecRegistry codecRegistry) {
             this.codecRegistry = codecRegistry;
             return this;
         }
 
-        public Builder<T> setIndexImg(final String indexImg) {
+        public Builder<T, I> setIndexImg(final String indexImg) {
             this.indexImg = indexImg;
             return this;
         }
@@ -373,7 +365,7 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
          * @param idToLabel the decoding labeling function
          * @return a Builder for a LabelingMappingCodec
          */
-        public Builder<T> setIdToLabel(final LongFunction<T> idToLabel) {
+        public Builder<T, I> setIdToLabel(final LongFunction<T> idToLabel) {
             this.idToLabel = idToLabel;
             return this;
         }
@@ -385,13 +377,31 @@ public class LabelingMappingCodec<T> implements Codec<LabelingContainer<T>> {
          * @param labelToId the encoding labeling function
          * @return a Builder for a LabelingMappingCodec
          */
-        public Builder<T> setLabelToId(final ToLongFunction<T> labelToId) {
+        public Builder<T, I> setLabelToId(final ToLongFunction<T> labelToId) {
             this.labelToId = labelToId;
             return this;
         }
 
-        public LabelingMappingCodec<T> build() {
-            return new LabelingMappingCodec<>(this);
+        /**
+         *
+         * @param file the fully qualified path to the file
+         */
+        public Builder<T, I> setFile(Path file) {
+            this.file = file;
+            return this;
+        }
+
+        /**
+         * Set the datasetIO Service to use. Can be accessed through the current context.
+         * @param datasetIOService
+         */
+        public Builder<T, I> setDatasetIOService(DatasetIOService datasetIOService) {
+            this.datasetIOService = datasetIOService;
+            return this;
+        }
+
+        public ImgLabelingCodec<T, I> build() {
+            return new ImgLabelingCodec<T, I>(this);
         }
 
     }

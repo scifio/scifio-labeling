@@ -42,9 +42,9 @@ import java.util.Set;
 public class ImgLabelingContainer<T, I extends IntegerType<I>> {
 
     ImgLabeling<T, I> imgLabeling;
-    Map<String, Set<Integer>> sourceToLabel;
+    Map<String, Set<T>> sourceToLabel;
 
-    public ImgLabelingContainer(ImgLabeling<T, I> imgLabeling, Map<String, Set<Integer>> sourceToLabel) {
+    public ImgLabelingContainer(ImgLabeling<T, I> imgLabeling, Map<String, Set<T>> sourceToLabel) {
         this.imgLabeling = imgLabeling;
         this.sourceToLabel = sourceToLabel;
     }
@@ -60,11 +60,11 @@ public class ImgLabelingContainer<T, I extends IntegerType<I>> {
         this.imgLabeling = imgLabeling;
     }
 
-    public Map<String, Set<Integer>> getSourceToLabel() {
+    public Map<String, Set<T>> getSourceToLabel() {
         return sourceToLabel;
     }
 
-    public void setSourceToLabel(Map<String, Set<Integer>> sourceToLabel) {
+    public void setSourceToLabel(Map<String, Set<T>> sourceToLabel) {
         this.sourceToLabel = sourceToLabel;
     }
 }

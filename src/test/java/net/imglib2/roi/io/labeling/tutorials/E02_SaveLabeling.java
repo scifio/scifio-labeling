@@ -71,7 +71,7 @@ public class E02_SaveLabeling {
 
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        labelingIOService.save(container, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath());
+        labelingIOService.saveWithMetaData(container, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath());
 
     }
 

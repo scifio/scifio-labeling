@@ -40,11 +40,11 @@ import java.util.*;
 public class LabelingContainer<T> {
 
     List<Set<T>> labelSets;
-    Map<String, Set<Integer>> sourceToLabel = new HashMap<>();
+    Map<String, Set<T>> sourceToLabel = new HashMap<>();
     LabelingMapping<T> labelingMapping;
 
 
-    public LabelingContainer(List<Set<T>> labelSets, Map<String, Set<Integer>> sourceToLabel, LabelingMapping<T> labelingMapping) {
+    public LabelingContainer(List<Set<T>> labelSets, Map<String, Set<T>> sourceToLabel, LabelingMapping<T> labelingMapping) {
         this.labelSets = labelSets;
         this.sourceToLabel = sourceToLabel;
         this.labelingMapping = labelingMapping;
@@ -54,7 +54,7 @@ public class LabelingContainer<T> {
 
     }
 
-    public void addLabelToSource(String source, Integer label) {
+    public void addLabelToSource(String source, T label) {
         sourceToLabel.putIfAbsent(source, new HashSet<>());
         sourceToLabel.get(source).add(label);
     }
@@ -69,11 +69,11 @@ public class LabelingContainer<T> {
         this.labelSets = labelSets;
     }
 
-    public Map<String, Set<Integer>> getSourceToLabel() {
+    public Map<String, Set<T>> getSourceToLabel() {
         return sourceToLabel;
     }
 
-    public void setSourceToLabel(Map<String, Set<Integer>> sourceToLabel) {
+    public void setSourceToLabel(Map<String, Set<T>> sourceToLabel) {
         this.sourceToLabel = sourceToLabel;
     }
 
