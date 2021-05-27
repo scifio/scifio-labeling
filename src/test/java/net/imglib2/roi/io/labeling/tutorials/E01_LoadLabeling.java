@@ -36,6 +36,8 @@ package net.imglib2.roi.io.labeling.tutorials;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.roi.io.labeling.LabelingIOService;
+import net.imglib2.roi.io.labeling.LabelingIOTest;
+import net.imglib2.roi.io.labeling.data.Container;
 import net.imglib2.roi.io.labeling.data.ImgLabelingContainer;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.integer.IntType;
@@ -67,11 +69,10 @@ public class E01_LoadLabeling {
         // the container contains an ImgLabeling of that type as well as an optional sourcemap
         // the sourcemap is a mapping of a source img to a list of labels that where contained in it and added to 
         // the ImgLabeling
-        ImgLabelingContainer<Integer, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestSimple.bson");
-        ImgLabeling<Integer, IntType> mapping = container.getImgLabeling();
-        Assert.assertNotNull(mapping);
-        Assert.assertNotNull(container.getSourceToLabel());
-        Assert.assertTrue(container.getSourceToLabel().isEmpty());
+        ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load("src/test/resources/labeling/labelSaveTestSimple.bson");
+        Assert.assertNotNull(imgLabeling);
+        Assert.assertNotNull(imgLabeling.getIndexImg());
+        Assert.assertFalse(imgLabeling.getMapping().getLabels().isEmpty());
 
     }
 
@@ -83,11 +84,10 @@ public class E01_LoadLabeling {
         // the container contains an ImgLabeling of that type as well as an optional sourcemap
         // the sourcemap is a mapping of a source img to a list of labels that where contained in it and added to
         // the ImgLabeling
-        ImgLabelingContainer<Integer, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/example1.bson");
-        ImgLabeling<Integer, IntType> mapping = container.getImgLabeling();
-        Assert.assertNotNull(mapping);
-        Assert.assertNotNull(container.getSourceToLabel());
-        Assert.assertTrue(container.getSourceToLabel().isEmpty());
+        ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load("src/test/resources/labeling/example1.bson");
+        Assert.assertNotNull(imgLabeling);
+        Assert.assertNotNull(imgLabeling.getIndexImg());
+        Assert.assertFalse(imgLabeling.getMapping().getLabels().isEmpty());
 
     }
 
@@ -103,11 +103,9 @@ public class E01_LoadLabeling {
         AtomicLong atomicLong = new AtomicLong(0);
         labels.forEach(label -> map.put(atomicLong.getAndIncrement(), label));
         //get the ImgLabeling with Example.class from our mapping through the map.get() function
-        ImgLabelingContainer<Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplexFunction.bson", map::get);
+        Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplexFunction.bson", map::get, Example.class, new ExampleCodec());
         ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
         Assert.assertNotNull(mapping);
-        Assert.assertNotNull(container.getSourceToLabel());
-        Assert.assertTrue(container.getSourceToLabel().isEmpty());
     }
 
     // ToDo: fix usage of mapping
@@ -115,11 +113,9 @@ public class E01_LoadLabeling {
     public void loadClassBasedLabeling() throws IOException {
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        ImgLabelingContainer<Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplex.bson", Example.class, new ExampleCodec());
-        ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
+        Container<Example, Integer, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplex.bson", Example.class, new ExampleCodec());
+        ImgLabeling<Integer, IntType> mapping = container.getImgLabeling();
         Assert.assertNotNull(mapping);
-        Assert.assertNotNull(container.getSourceToLabel());
-        Assert.assertTrue(container.getSourceToLabel().isEmpty());
     }
 
 

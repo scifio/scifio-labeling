@@ -36,9 +36,11 @@ package net.imglib2.roi.io.labeling.tutorials;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.roi.io.labeling.LabelingIOService;
+import net.imglib2.roi.io.labeling.data.Container;
 import net.imglib2.roi.io.labeling.data.ImgLabelingContainer;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
+import org.bson.codecs.DocumentCodec;
 import org.junit.Before;
 import org.junit.Test;
 import org.scijava.Context;
@@ -59,7 +61,7 @@ public class E02_SaveLabeling {
     @Test
     public void saveLabelingTest() {
         ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
-        ImgLabelingContainer<Integer, UnsignedByteType> container = new ImgLabelingContainer<>();
+        Container<Map, Integer, UnsignedByteType> container = new Container<>();
         container.setImgLabeling(labeling);
         Map<String, Set<Integer>> sources = new HashMap<>();
         Set set = new HashSet<>();
@@ -67,11 +69,11 @@ public class E02_SaveLabeling {
         set.add(13);
         set.add(42);
         sources.put("1", set);
-        container.setSourceToLabel(sources);
+        container.setMetadata(sources);
 
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        labelingIOService.saveWithMetaData(container, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath());
+        labelingIOService.saveWithMetaData(container, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath(), Map.class, new DocumentCodec());
 
     }
 

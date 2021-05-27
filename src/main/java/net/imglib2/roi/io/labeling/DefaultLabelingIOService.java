@@ -131,6 +131,23 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
     }
 
     @Override
+    public <S, T, I extends IntegerType<I>> Container<S, T, I> loadWithMetadata(String file, Class<S> metadataClazz, Codec<?>... codecs) throws IOException {
+        addCodecs(codecs);
+        LabelingMappingCodec<S,T, I> labelingMappingCodec = new LabelingMappingCodec.Builder<S,T, I>()
+                .setIndexImg(LabelingUtil.getFilePathWithExtension(file, LabelingUtil.TIF_ENDING, ""))
+                .setMetadataClazz(metadataClazz)
+                .setFile(Paths.get(file)).setDatasetIOService(datasetIOService)
+                .setCodecRegistry(registry).build();
+        RandomAccessFile aFile = new RandomAccessFile(LabelingUtil.getFilePathWithExtension(file, LabelingUtil.BSON_ENDING, Paths.get(file).getParent().toString()), "r");
+        FileChannel inChannel = aFile.getChannel();
+        MappedByteBuffer buffer = inChannel.map(FileChannel.MapMode.READ_ONLY, 0, inChannel.size());
+        BsonReader bsonReader = new BsonBinaryReader(buffer);
+        Container<S, T, I> container = labelingMappingCodec.decode(bsonReader, DecoderContext.builder().build());
+        return container;
+
+    }
+
+    @Override
     public <S, T, I extends IntegerType<I>> Container<S, T, I> loadWithMetadata(String file, Class<T> clazz, Class<S> metadataClazz, Codec<?>... codecs) throws IOException {
         addCodecs(codecs);
         LabelingMappingCodec<S,T, I> labelingMappingCodec = new LabelingMappingCodec.Builder<S,T, I>()
@@ -148,8 +165,12 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
     }
 
     @Override
-    public <S, T, I extends IntegerType<I>> Container<S, T, I> loadWithMetadata(String file, LongFunction<T> idToLabel) throws IOException {
-        LabelingMappingCodec<S, T, I> labelingMappingCodec = new LabelingMappingCodec.Builder<S, T, I>().setCodecRegistry(registry).setIdToLabel(idToLabel).build();
+    public <S, T, I extends IntegerType<I>> Container<S, T, I> loadWithMetadata(String file, LongFunction<T> idToLabel, Class<S> metadataClazz, Codec<?>... codecs) throws IOException {
+        addCodecs(codecs);
+        LabelingMappingCodec<S, T, I> labelingMappingCodec = new LabelingMappingCodec.Builder<S, T, I>()
+                .setMetadataClazz(metadataClazz)
+                .setFile(Paths.get(file)).setDatasetIOService(datasetIOService)
+                .setCodecRegistry(registry).setIdToLabel(idToLabel).build();
         Path labelingFile = Paths.get(file);
         RandomAccessFile aFile = new RandomAccessFile(LabelingUtil.getFilePathWithExtension(file, LabelingUtil.BSON_ENDING, labelingFile.getParent().toString()), "r");
         FileChannel inChannel = aFile.getChannel();
@@ -158,6 +179,24 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
 
         Container<S, T, I> container = labelingMappingCodec.decode(bsonReader, DecoderContext.builder().build());
         return container;
+
+    }
+
+    @Override
+    public <S, T, I extends IntegerType<I>> void saveWithMetaData(Container<S, T, I> container, String file, Class<S> metadataClazz, Codec<?>... codecs) {
+        addCodecs(codecs);
+        LabelingMappingCodec<S, T, I> labelingMappingCodec = new LabelingMappingCodec.Builder<S, T, I>()
+                .setIndexImg(LabelingUtil.getFilePathWithExtension(file, LabelingUtil.TIF_ENDING, Paths.get(file).getParent().toString()))
+                .setMetadataClazz(metadataClazz)
+                .setFile(Paths.get(file)).setDatasetIOService(datasetIOService)
+                .setCodecRegistry(registry).build();
+        labelingMappingCodec.setIndexImg(LabelingUtil.getFilePathWithExtension(file, LabelingUtil.TIF_ENDING, ""));
+        BasicOutputBuffer outputBuffer = new BasicOutputBuffer();
+        BsonBinaryWriter writer = new BsonBinaryWriter(outputBuffer);
+        labelingMappingCodec.encode(writer, container, EncoderContext.builder().isEncodingCollectibleDocument(false).build());
+        LabelingUtil.writeToFile(outputBuffer, new File(LabelingUtil.getFilePathWithExtension(file, LabelingUtil.BSON_ENDING, Paths.get(file).getParent().toString())));
+        final Img<I> img = ImgView.wrap(container.getImgLabeling().getIndexImg(), null);
+        LabelingUtil.saveAsTiff(context, LabelingUtil.getFilePathWithExtension(file, LabelingUtil.TIF_ENDING, Paths.get(file).getParent().toString()), img);
 
     }
 
@@ -180,8 +219,12 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
     }
 
     @Override
-    public <S, T, I extends IntegerType<I>> void saveWithMetaData(Container<S, T, I> container, String file, ToLongFunction<T> labelToId) {
-        LabelingMappingCodec<S, T, I> labelingMappingCodec = new LabelingMappingCodec.Builder<S, T, I>().setCodecRegistry(registry).setLabelToId(labelToId).build();
+    public <S, T, I extends IntegerType<I>> void saveWithMetaData(Container<S, T, I> container, String file, ToLongFunction<T> labelToId, Class<S> metadataClazz, Codec<?>... codecs) {
+        addCodecs(codecs);
+        LabelingMappingCodec<S, T, I> labelingMappingCodec = new LabelingMappingCodec.Builder<S, T, I>()
+                .setMetadataClazz(metadataClazz)
+                .setFile(Paths.get(file)).setDatasetIOService(datasetIOService)
+                .setCodecRegistry(registry).setLabelToId(labelToId).build();
         labelingMappingCodec.setIndexImg(LabelingUtil.getFilePathWithExtension(file, LabelingUtil.TIF_ENDING, ""));
         BasicOutputBuffer outputBuffer = new BasicOutputBuffer();
         BsonBinaryWriter writer = new BsonBinaryWriter(outputBuffer);
