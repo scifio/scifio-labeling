@@ -36,9 +36,12 @@ package net.imglib2.roi.io.labeling.tutorials;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.roi.io.labeling.LabelingIOService;
+import net.imglib2.roi.io.labeling.data.Container;
 import net.imglib2.roi.io.labeling.data.ImgLabelingContainer;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
+import org.bson.codecs.DocumentCodec;
+import org.bson.codecs.MapCodec;
 import org.junit.Before;
 import org.junit.Test;
 import org.scijava.Context;
@@ -59,19 +62,20 @@ public class E02_SaveLabeling {
     @Test
     public void saveLabelingTest() {
         ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
-        ImgLabelingContainer<Integer, UnsignedByteType> container = new ImgLabelingContainer<>();
+        Container<Map, Integer, UnsignedByteType> container = new Container<>();
         container.setImgLabeling(labeling);
-        Map<String, Set<Integer>> sources = new HashMap<>();
-        Set set = new HashSet<>();
-        set.add(1);
-        set.add(13);
-        set.add(42);
-        sources.put("1", set);
-        container.setSourceToLabel(sources);
+        // if you want to store metadata as a map, make sure that their are codecs for every value, or wrap them in BsonValues
+        // also, the key of the map must be string. If you need anything else, implement your own map codec
+        Map<String, Integer> sources = new HashMap<>();
+        sources.put("one", 1);
+        sources.put("two", 2);
+        sources.put("three", 3);
+
+        container.setMetadata(sources);
 
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        labelingIOService.saveWithMetaData(container, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath());
+        labelingIOService.saveWithMetaData(container, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath(), Map.class, new MapCodec());
 
     }
 
