@@ -113,8 +113,8 @@ public class E01_LoadLabeling {
     public void loadClassBasedLabeling() throws IOException {
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        Container<Example, Integer, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplex.bson", Example.class, new ExampleCodec());
-        ImgLabeling<Integer, IntType> mapping = container.getImgLabeling();
+        Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplex.bson", Example.class, Example.class, new ExampleCodec());
+        ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
         Assert.assertNotNull(mapping);
     }
 

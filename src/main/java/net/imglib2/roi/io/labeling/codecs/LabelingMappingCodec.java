@@ -151,13 +151,10 @@ public class LabelingMappingCodec<S, T, I extends IntegerType<I>> implements Cod
             }
             labelSets.add(labelSet);
         }
+        reader.readEndDocument();
         container.setImgLabeling(ImgLabeling.fromImageAndLabelSets(img, labelSets));
-        if(reader.getCurrentBsonType()!=BsonType.END_OF_DOCUMENT){
-            S metadata = getCodecRegistry().get(metadataClazz).decode(reader,decoderContext);
-            container.setMetadata(metadata);
-        }else{
-            reader.readEndDocument();
-        }
+        S metadata = getCodecRegistry().get(metadataClazz).decode(reader,decoderContext);
+        container.setMetadata(metadata);
         return container;
     }
 
@@ -233,6 +230,7 @@ public class LabelingMappingCodec<S, T, I extends IntegerType<I>> implements Cod
             }
             writer.writeEndDocument();
         }
+        writer.writeName("metadata");
         getCodecRegistry().get(metadataClazz).encode(writer, value.getMetadata(), encoderContext);
         writer.writeEndDocument();
     }

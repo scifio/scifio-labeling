@@ -41,6 +41,7 @@ import net.imglib2.roi.io.labeling.data.ImgLabelingContainer;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import org.bson.codecs.DocumentCodec;
+import org.bson.codecs.MapCodec;
 import org.junit.Before;
 import org.junit.Test;
 import org.scijava.Context;
@@ -63,17 +64,18 @@ public class E02_SaveLabeling {
         ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
         Container<Map, Integer, UnsignedByteType> container = new Container<>();
         container.setImgLabeling(labeling);
-        Map<String, Set<Integer>> sources = new HashMap<>();
-        Set set = new HashSet<>();
-        set.add(1);
-        set.add(13);
-        set.add(42);
-        sources.put("1", set);
+        // if you want to store metadata as a map, make sure that their are codecs for every value, or wrap them in BsonValues
+        // also, the key of the map must be string. If you need anything else, implement your own map codec
+        Map<String, Integer> sources = new HashMap<>();
+        sources.put("one", 1);
+        sources.put("two", 2);
+        sources.put("three", 3);
+
         container.setMetadata(sources);
 
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        labelingIOService.saveWithMetaData(container, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath(), Map.class, new DocumentCodec());
+        labelingIOService.saveWithMetaData(container, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath(), Map.class, new MapCodec());
 
     }
 

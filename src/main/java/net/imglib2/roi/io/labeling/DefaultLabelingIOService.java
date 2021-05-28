@@ -72,7 +72,7 @@ import java.util.function.ToLongFunction;
 @Plugin(type = ImageJService.class)
 public class DefaultLabelingIOService extends AbstractService implements LabelingIOService {
     CodecRegistry registry = CodecRegistries.fromProviders(new BsonValueCodecProvider(), new DocumentCodecProvider()
-            , new ValueCodecProvider());
+            , new ValueCodecProvider(), new MapCodecProvider());
     @Parameter
     private Context context;
     @Parameter

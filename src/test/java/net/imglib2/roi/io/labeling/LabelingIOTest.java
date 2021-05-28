@@ -78,14 +78,17 @@ public class LabelingIOTest {
         ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
         Container container = new Container();
         container.setImgLabeling(labeling);
-        context.getService(LabelingIOService.class).saveWithMetaData(container, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath(), Example.class, Example.class, new ExampleCodec());
+        container.setMetadata(new Example("a",2.0,1));
+        context.getService(LabelingIOService.class).saveWithMetaData(container, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath(), Example.class, new ExampleCodec());
     }
 
 
     @Test
     public void loadLabelingWithMetadataPrimitiveTest() throws IOException {
-        Container<Example, Integer, IntType> container = context.getService(LabelingIOService.class).loadWithMetadata("src/test/resources/labeling/labelSaveTestSimple.bson", Integer.class, Example.class, new ExampleCodec());
+        Container<Example, Integer, IntType> container = context.getService(LabelingIOService.class).loadWithMetadata("src/test/resources/labeling/labelSaveTestSimple.bson", Example.class, new ExampleCodec());
         ImgLabeling<Integer, IntType> mapping = container.getImgLabeling();
+        Example e = container.getMetadata();
+        Assert.assertNotNull(e);
         Assert.assertEquals(getSimpleImgLabeling().getMapping().getLabels(), mapping.getMapping().getLabels());
     }
 
@@ -95,6 +98,7 @@ public class LabelingIOTest {
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
         Container container = new Container();
         container.setImgLabeling(labeling);
+        container.setMetadata(new Example("a",2.0,1));
         labelingIOService.saveWithMetaData(container, new File("src/test/resources/labeling/labelSaveTestComplex.tif").getAbsolutePath(), Example.class, Example.class, new ExampleCodec());
     }
 
@@ -103,6 +107,8 @@ public class LabelingIOTest {
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
         Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplex.bson", Example.class,  Example.class, new ExampleCodec());
         ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
+        Example e = container.getMetadata();
+        Assert.assertNotNull(e);
         Assert.assertEquals(getComplexImgLabeling().getMapping().getLabels(), mapping.getMapping().getLabels());
     }
 
@@ -115,8 +121,9 @@ public class LabelingIOTest {
         labeling.getMapping().getLabels().forEach(label -> mapping.put(label, atomicLong.getAndIncrement()));
         Container container = new Container();
         container.setImgLabeling(labeling);
+        container.setMetadata(new Example("a",2.0,1));
         labelingIOService.saveWithMetaData(container, new File("src/test/resources/labeling/labelSaveTestComplexFunction.tif").getAbsolutePath(),
-                mapping::get, Integer.class, new IntegerCodec());
+                mapping::get, Example.class, new ExampleCodec());
     }
 
     @Test
@@ -126,8 +133,11 @@ public class LabelingIOTest {
         Map<Long, Example> map = new HashMap<>();
         AtomicLong atomicLong = new AtomicLong(0);
         labels.forEach(label -> map.put(atomicLong.getAndIncrement(), label));
-        Container<Integer, Example, UnsignedByteType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplexFunction.bson", map::get,
-                Integer.class, new IntegerCodec());
+        Container<Example, Example, UnsignedByteType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplexFunction.bson", map::get,
+                Example.class, new ExampleCodec());
+        Example metadata = container.getMetadata();
+        Assert.assertNotNull(metadata);
+        Assert.assertEquals(new Example("a",2.0,1), metadata);
         Assert.assertEquals(labels, container.getImgLabeling().getMapping().getLabels());
     }
 
