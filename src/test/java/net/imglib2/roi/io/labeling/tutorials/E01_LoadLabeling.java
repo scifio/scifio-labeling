@@ -108,7 +108,6 @@ public class E01_LoadLabeling {
         Assert.assertNotNull(mapping);
     }
 
-    // ToDo: fix usage of mapping
     @Test
     public void loadClassBasedLabeling() throws IOException {
         // get the LabelingIO service from the context

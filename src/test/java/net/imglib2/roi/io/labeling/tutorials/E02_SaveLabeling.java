@@ -36,9 +36,11 @@ package net.imglib2.roi.io.labeling.tutorials;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.roi.io.labeling.LabelingIOService;
+import net.imglib2.roi.io.labeling.LabelingIOTest;
 import net.imglib2.roi.io.labeling.data.Container;
 import net.imglib2.roi.io.labeling.data.ImgLabelingContainer;
 import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 import org.bson.codecs.DocumentCodec;
 import org.bson.codecs.MapCodec;
@@ -47,6 +49,7 @@ import org.junit.Test;
 import org.scijava.Context;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class E02_SaveLabeling {
@@ -60,7 +63,26 @@ public class E02_SaveLabeling {
 
 
     @Test
-    public void saveLabelingTest() {
+    public void saveLabelingTest() throws IOException {
+        ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
+        // get the LabelingIO service from the context
+        LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
+        labelingIOService.save(labeling, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath());
+
+    }
+
+    @Test
+    public void saveLabelingTest2() throws IOException {
+        ImgLabeling<Example, IntType> labeling = getComplexImgLabeling();
+        // get the LabelingIO service from the context
+        LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
+        labelingIOService.save(labeling, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath(), Example.class, new ExampleCodec());
+
+    }
+
+
+    @Test
+    public void saveLabelingWithMetaDataTest() {
         ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
         Container<Map, Integer, UnsignedByteType> container = new Container<>();
         container.setImgLabeling(labeling);
@@ -87,6 +109,16 @@ public class E02_SaveLabeling {
         // setup
         Img<UnsignedByteType> indexImg = ArrayImgs.unsignedBytes(new byte[]{1, 0, 2}, 3);
         List<Set<Integer>> labelSets = Arrays.asList(asSet(), asSet(values1), asSet(values2), asSet(values3));
+        return ImgLabeling.fromImageAndLabelSets(indexImg, labelSets);
+    }
+
+    private ImgLabeling<Example, IntType> getComplexImgLabeling() {
+        Example[] values1 = new Example[]{new Example("a", 1.0, 1), new Example("b", 2.24121, 2)};
+        Example[] values2 = new Example[]{new Example("a", 1.0, 1)};
+        Example[] values3 = new Example[]{new Example("b", 2.24121, 2), new Example("a", 1.0, 1), new Example("a", 1.0, 3)};
+        // setup
+        Img<IntType> indexImg = ArrayImgs.ints(new int[]{1, 0, 2}, 3);
+        List<Set<Example>> labelSets = Arrays.asList(asSet(), asSet(values1), asSet(values2), asSet(values3));
         return ImgLabeling.fromImageAndLabelSets(indexImg, labelSets);
     }
 
