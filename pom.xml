@@ -86,6 +86,11 @@
         </developer>
     </developers>
     <contributors>
+        <contributor>
+            <name>Tom Burke</name>
+            <email>burke@mpi-cbg.de</email>
+            <organization>MPI-CBG/CSBD</organization>
+        </contributor>
     </contributors>
 
     <repositories>
