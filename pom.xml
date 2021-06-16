@@ -11,12 +11,12 @@
     </parent>
 
     <groupId>net.imglib2</groupId>
-    <artifactId>imglib2-roi-io</artifactId>
+    <artifactId>labeling</artifactId>
     <version>0.2.0-SNAPSHOT</version>
 
-    <name>ImgLib2 ROI-IO</name>
-    <description>IO-Interfaces for Regions of interest in ImgLib2.</description>
-    <url>https://github.com/imglib/imglib2-roi</url>
+    <name>ImgLib2 Labeling</name>
+    <description>IO interfaces for labeling data in ImgLib2.</description>
+    <url>https://github.com/Labelings/Labeling</url>
     <inceptionYear>2020</inceptionYear>
     <organization>
         <name>ImgLib2</name>
@@ -38,18 +38,18 @@
     </mailingLists>
 
     <scm>
-        <connection>scm:git:git://github.com/imglib/imglib2-roi-io</connection>
-        <developerConnection>scm:git:git@github.com:imglib/imglib2-roi-io</developerConnection>
+        <connection>scm:git:git://github.com/Labelings/Labeling</connection>
+        <developerConnection>scm:git:git@github.com:Labelings/Labeling</developerConnection>
         <tag>HEAD</tag>
-        <url>https://github.com/imglib/imglib2-roi-io</url>
+        <url>https://github.com/Labelings/Labeling</url>
     </scm>
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/imglib/imglib2-roi-io/issues</url>
+        <url>https://github.com/Labelings/Labeling/issues</url>
     </issueManagement>
     <ciManagement>
         <system>Travis CI</system>
-        <url>https://travis-ci.org/imglib/imglib2-roi-io</url>
+        <url>https://travis-ci.org/Labelings/Labeling</url>
     </ciManagement>
 
     <properties>
@@ -73,58 +73,10 @@
 
     <developers>
         <developer>
-            <id>tpietzsch</id>
-            <name>Tobias Pietzsch</name>
-            <url>https://imagej.net/User:Pietzsch</url>
-            <roles>
-                <role>lead</role>
-                <role>developer</role>
-                <role>debugger</role>
-                <role>reviewer</role>
-                <role>support</role>
-                <role>maintainer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>StephanPreibisch</id>
-            <name>Stephan Preibisch</name>
-            <url>https://imagej.net/User:StephanP</url>
-            <roles>
-                <role>founder</role>
-                <role>lead</role>
-                <role>developer</role>
-                <role>debugger</role>
-                <role>reviewer</role>
-                <role>support</role>
-                <role>maintainer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>axtimwalde</id>
-            <name>Stephan Saalfeld</name>
-            <url>https://imagej.net/User:Saalfeld</url>
-            <roles>
-                <role>founder</role>
-                <role>lead</role>
-                <role>developer</role>
-                <role>debugger</role>
-                <role>reviewer</role>
-                <role>support</role>
-                <role>maintainer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>ctrueden</id>
-            <name>Curtis Rueden</name>
-            <url>https://imagej.net/User:Rueden</url>
-            <roles>
-                <role>maintainer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>tburke</id>
+            <id>tomburke-rse</id>
             <name>Tom Burke</name>
             <roles>
+                <role>lead</role>
                 <role>developer</role>
                 <role>debugger</role>
                 <role>reviewer</role>
@@ -134,71 +86,6 @@
         </developer>
     </developers>
     <contributors>
-        <contributor>
-            <name>Lee Kamentsky</name>
-            <url>https://imagej.net/User:Leek</url>
-            <properties>
-                <id>LeeKamentsky</id>
-            </properties>
-        </contributor>
-        <contributor>
-            <name>Alison Walter</name>
-            <url>https://imagej.net/User:Awalter2</url>
-            <properties>
-                <id>awalter17</id>
-            </properties>
-        </contributor>
-        <contributor>
-            <name>Robert Haase</name>
-            <url>https://imagej.net/User:Haesleinhuepf</url>
-            <properties>
-                <id>haesleinhuepf</id>
-            </properties>
-        </contributor>
-        <contributor>
-            <name>Christian Dietz</name>
-            <url>https://imagej.net/User:Dietzc</url>
-            <properties>
-                <id>dietzc</id>
-            </properties>
-        </contributor>
-        <contributor>
-            <name>Daniel Seebacher</name>
-        </contributor>
-        <contributor>
-            <name>Martin Horn</name>
-            <properties>
-                <id>hornm</id>
-            </properties>
-        </contributor>
-        <contributor>
-            <name>Barry DeZonia</name>
-            <url>https://imagej.net/User:Bdezonia</url>
-            <properties>
-                <id>bdezonia</id>
-            </properties>
-        </contributor>
-        <contributor>
-            <name>Johannes Schindelin</name>
-            <url>https://imagej.net/User:Schindelin</url>
-            <properties>
-                <id>dscho</id>
-            </properties>
-        </contributor>
-        <contributor>
-            <name>Mark Hiner</name>
-            <url>https://imagej.net/User:Hinerm</url>
-            <properties>
-                <id>hinerm</id>
-            </properties>
-        </contributor>
-        <contributor>
-            <name>John Bogovic</name>
-            <url>https://imagej.net/User:Bogovic</url>
-            <properties>
-                <id>bogovicj</id>
-            </properties>
-        </contributor>
     </contributors>
 
     <repositories>
