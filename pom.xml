@@ -11,7 +11,7 @@
 
     <groupId>net.imglib2</groupId>
     <artifactId>labeling</artifactId>
-    <version>0.2.1-SNAPSHOT</version>
+    <version>0.2.1</version>
 
     <name>ImgLib2 Labeling</name>
     <description>IO interfaces for labeling data in ImgLib2.</description>
@@ -39,7 +39,7 @@
     <scm>
         <connection>scm:git:git://github.com/Labelings/Labeling</connection>
         <developerConnection>scm:git:git@github.com:Labelings/Labeling</developerConnection>
-        <tag>HEAD</tag>
+        <tag>labeling-0.2.1</tag>
         <url>https://github.com/Labelings/Labeling</url>
     </scm>
     <issueManagement>
