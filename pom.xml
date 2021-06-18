@@ -48,7 +48,7 @@
     </issueManagement>
     <ciManagement>
         <system>Travis CI</system>
-        <url>https://travis-ci.org/Labelings/Labeling</url>
+        <url>https://travis-ci.com/Labelings/Labeling</url>
     </ciManagement>
 
     <properties>

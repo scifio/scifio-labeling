@@ -1,6 +1,6 @@
 [![Java CI with Maven](https://github.com/Labelings/Labeling/actions/workflows/maven.yml/badge.svg)](https://github.com/Labelings/Labeling/actions/workflows/maven.yml)
 
-[![](https://travis-ci.org/imglib/imglib2-roi-io.svg?branch=master)](https://travis-ci.org/imglib/imglib2-roi-io)
+[![](https://travis-ci.com/Labelings/Labeling.svg?branch=master)](https://travis-ci.com/Labelings/Labeling)
 
 # Labeling
 
