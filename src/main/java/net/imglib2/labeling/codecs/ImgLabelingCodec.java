@@ -384,6 +384,7 @@ public class ImgLabelingCodec<T, I extends IntegerType<I>> implements Codec<ImgL
         /**
          *
          * @param file the fully qualified path to the file
+         * @return a Builder for a LabelingMappingCodec
          */
         public Builder<T, I> setFile(Path file) {
             this.file = file;
@@ -392,7 +393,8 @@ public class ImgLabelingCodec<T, I extends IntegerType<I>> implements Codec<ImgL
 
         /**
          * Set the datasetIO Service to use. Can be accessed through the current context.
-         * @param datasetIOService
+         * @param datasetIOService  a scijava dataetIOService gotten through the context
+         * @return a Builder for a LabelingMappingCodec
          */
         public Builder<T, I> setDatasetIOService(DatasetIOService datasetIOService) {
             this.datasetIOService = datasetIOService;

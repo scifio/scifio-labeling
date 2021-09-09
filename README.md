@@ -1,5 +1,3 @@
-[![Java CI with Maven](https://github.com/Labelings/Labeling/actions/workflows/maven.yml/badge.svg)](https://github.com/Labelings/Labeling/actions/workflows/maven.yml)
-
 [![](https://github.com/Labelings/Labeling/actions/workflows/build-main.yml/badge.svg)](https://github.com/Labelings/Labeling/actions/workflows/build-main.yml)
 
 # Labeling

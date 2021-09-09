@@ -388,6 +388,7 @@ public class LabelingMappingCodec<S, T, I extends IntegerType<I>> implements Cod
         /**
          *
          * @param file the fully qualified path to the file
+         * @return a Builder for a LabelingMappingCodec
          */
         public Builder<S, T, I> setFile(Path file) {
             this.file = file;
@@ -396,7 +397,8 @@ public class LabelingMappingCodec<S, T, I extends IntegerType<I>> implements Cod
 
         /**
          * Set the datasetIO Service to use. Can be accessed through the current context.
-         * @param datasetIOService
+         * @param datasetIOService  the datasetIO Service to use
+         * @return a Builder for a LabelingMappingCodec
          */
         public Builder<S, T, I> setDatasetIOService(DatasetIOService datasetIOService) {
             this.datasetIOService = datasetIOService;
@@ -405,8 +407,8 @@ public class LabelingMappingCodec<S, T, I extends IntegerType<I>> implements Cod
 
         /**
          * the class of the metadata that is contained in the file. also needs a codec to decode
-         * @param metadataClazz
-         * @return
+         * @param metadataClazz     the metadata class to use
+         * @return a Builder for a LabelingMappingCodec
          */
         public Builder<S, T, I> setMetadataClazz(Class<S> metadataClazz) {
             this.metadataClazz = metadataClazz;

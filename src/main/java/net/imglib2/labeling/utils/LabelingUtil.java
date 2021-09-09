@@ -55,6 +55,7 @@ public class LabelingUtil {
     public static final String TIF_ENDING = ".tif";
 
     /**
+     * @param context the scijava context used in the project
      * @param filename  the filename of the Img to save
      * @param rai   the img
      * @param <T>   the pixel value
