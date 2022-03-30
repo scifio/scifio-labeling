@@ -31,19 +31,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package net.imglib2.labeling;
+package io.scif.labeling;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import io.scif.labeling.data.Container;
+import io.scif.labeling.utils.LabelingUtil;
 import io.scif.services.DatasetIOService;
 import net.imagej.ImageJService;
 import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.img.Img;
 import net.imglib2.img.ImgView;
-import net.imglib2.labeling.data.Container;
 import net.imglib2.labeling.data.LabelingData;
-import net.imglib2.labeling.data.TypeTokenWrapper;
-import net.imglib2.labeling.utils.LabelingUtil;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.roi.labeling.LabelingMapping;
 import net.imglib2.type.numeric.IntegerType;
@@ -63,7 +62,7 @@ import java.util.*;
 import java.util.function.LongFunction;
 import java.util.function.ToLongFunction;
 
-import static net.imglib2.labeling.utils.LabelingUtil.TIF_ENDING;
+import static io.scif.labeling.utils.LabelingUtil.TIF_ENDING;
 
 @Plugin(type = ImageJService.class)
 public class DefaultLabelingIOService extends AbstractService implements LabelingIOService {
@@ -108,7 +107,7 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
         }
         labelingData.setMetadata(metadata);
         final Img<I> img = ImgView.wrap(imgLabeling.getIndexImg(), null);
-        LabelingUtil.saveAsTiff(this.context, LabelingUtil.getFilePathWithExtension(file, LabelingUtil.TIF_ENDING, Paths.get(file).getParent().toString()), img);
+        LabelingUtil.saveAsTiff(this.context, LabelingUtil.getFilePathWithExtension(file, TIF_ENDING, Paths.get(file).getParent().toString()), img);
         this.writeLabelingFile(file, labelingData);
     }
 
@@ -192,7 +191,7 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
         labelingData.setVersion(LabelingUtil.VERSION);
         labelingData.setNumSets(labelingMapping.numSets());
         labelingData.setNumSources(1);
-        labelingData.setIndexImg(LabelingUtil.getFilePathWithExtension(file, LabelingUtil.TIF_ENDING, null));
+        labelingData.setIndexImg(LabelingUtil.getFilePathWithExtension(file, TIF_ENDING, null));
         return labelingData;
     }
 

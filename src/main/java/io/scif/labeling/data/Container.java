@@ -31,50 +31,29 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package net.imglib2.labeling.utils;
+package io.scif.labeling.data;
 
-import io.scif.config.SCIFIOConfig;
-import io.scif.img.ImgIOException;
-import io.scif.img.ImgSaver;
-import net.imglib2.RandomAccessibleInterval;
-import net.imglib2.exception.IncompatibleTypeException;
-import net.imglib2.img.ImgView;
-import net.imglib2.type.numeric.RealType;
-import org.scijava.Context;
+import net.imglib2.roi.labeling.ImgLabeling;
+import net.imglib2.type.numeric.IntegerType;
 
-import java.nio.file.Paths;
+public class Container<S, T, I extends IntegerType<I>> {
 
-public class LabelingUtil {
+    ImgLabeling<T, I> imgLabeling;
+    S metadata;
 
-
-    public static final String LBL_ENDING = ".lbl.json";
-    public static final String TIF_ENDING = ".tif";
-    public final static int VERSION = 3;
-
-    /**
-     * @param context  the scijava context used in the project
-     * @param filename the filename of the Img to save
-     * @param rai      the img
-     * @param <T>      the pixel value
-     */
-    public static <T extends RealType<T>> void saveAsTiff(final Context context,
-                                                          final String filename,
-                                                          final RandomAccessibleInterval<T> rai) {
-
-        try {
-            new ImgSaver(context).saveImg(filename, ImgView.wrap(rai, null), new SCIFIOConfig().writerSetFailIfOverwriting(false));
-        } catch (ImgIOException | IncompatibleTypeException e) {
-            e.printStackTrace();
-        }
+    public ImgLabeling<T, I> getImgLabeling() {
+        return imgLabeling;
     }
 
-    public static String getFilePathWithExtension(final String filename, final String extension, String path) {
-        path = (path == null) ? "" : path;
-        String actualFilename = Paths.get(filename).getFileName().toString();
-        if (actualFilename.endsWith(extension)) {
-            return Paths.get(path, actualFilename).toString();
-        }
-        final int index = actualFilename.lastIndexOf(".");
-        return Paths.get(path, actualFilename.substring(0, index == -1 ? actualFilename.length() : index).concat(extension)).toString();
+    public void setImgLabeling(ImgLabeling<T, I> imgLabeling) {
+        this.imgLabeling = imgLabeling;
+    }
+
+    public S getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(S metadata) {
+        this.metadata = metadata;
     }
 }

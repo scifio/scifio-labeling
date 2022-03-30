@@ -31,10 +31,10 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package net.imglib2.labeling;
+package io.scif.labeling;
 
+import io.scif.labeling.data.Container;
 import net.imagej.ImageJService;
-import net.imglib2.labeling.data.Container;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.IntegerType;
 

@@ -10,17 +10,17 @@
         <relativePath/>
     </parent>
 
-    <groupId>net.imglib2</groupId>
+    <groupId>io.scif</groupId>
     <artifactId>labeling</artifactId>
     <version>0.2.3-SNAPSHOT</version>
 
-    <name>ImgLib2 Labeling</name>
+    <name>SCIFIO Labeling</name>
     <description>IO interfaces for labeling data in ImgLib2.</description>
     <url>https://github.com/Labelings/Labeling</url>
     <inceptionYear>2020</inceptionYear>
     <organization>
-        <name>ImgLib2</name>
-        <url>http://imglib2.net/</url>
+        <name>SCIFIO</name>
+        <url>https://scif.io/</url>
     </organization>
     <licenses>
         <license>
@@ -33,15 +33,15 @@
     <mailingLists>
         <mailingList>
             <name>Image.sc Forum</name>
-            <archive>https://forum.image.sc/tags/imglib2</archive>
+            <archive>https://forum.image.sc/tags/scifio</archive>
         </mailingList>
     </mailingLists>
 
     <scm>
-        <connection>scm:git:git://github.com/Labelings/Labeling</connection>
-        <developerConnection>scm:git:git@github.com:Labelings/Labeling</developerConnection>
+        <connection>scm:git:git://github.com/scifio/Labeling</connection>
+        <developerConnection>scm:git:git@github.com:scifio/Labeling</developerConnection>
         <tag>HEAD</tag>
-        <url>https://github.com/Labelings/Labeling</url>
+        <url>https://github.com/scifio/Labeling</url>
     </scm>
     <issueManagement>
         <system>GitHub</system>
@@ -53,7 +53,7 @@
     </ciManagement>
 
     <properties>
-        <package-name>net.imglib2.roi.io</package-name>
+        <package-name>io.scif.roi.io</package-name>
         <imglib2-roi.version>0.11.0</imglib2-roi.version>
         <license.licenseName>bsd_2</license.licenseName>
         <license.projectName>ImgLib2: a general-purpose, multidimensional image processing library.

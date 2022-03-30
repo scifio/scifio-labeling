@@ -31,7 +31,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package net.imglib2.labeling.tutorials;
+package io.scif.labeling.tutorials;
 
 import java.util.Objects;
 

@@ -1,4 +1,4 @@
-[![](https://github.com/Labelings/Labeling/actions/workflows/build-main.yml/badge.svg)](https://github.com/Labelings/Labeling/actions/workflows/build-main.yml)
+[![](https://github.com/scifio/Labeling/actions/workflows/build-main.yml/badge.svg)](https://github.com/scifio/Labeling/actions/workflows/build-main.yml)
 
 # Labeling
 
