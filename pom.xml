@@ -16,7 +16,7 @@
 
     <name>SCIFIO Labeling</name>
     <description>IO interfaces for labeling data in ImgLib2.</description>
-    <url>https://github.com/Labelings/Labeling</url>
+    <url>https://github.com/scifio/Labeling</url>
     <inceptionYear>2020</inceptionYear>
     <organization>
         <name>SCIFIO</name>
@@ -45,11 +45,11 @@
     </scm>
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/Labelings/Labeling/issues</url>
+        <url>https://github.com/scifio/Labeling/issues</url>
     </issueManagement>
     <ciManagement>
         <system>GitHub Actions</system>
-        <url>https://github.com/Labelings/Labeling/actions</url>
+        <url>https://github.com/scifio/Labeling/actions</url>
     </ciManagement>
 
     <properties>
