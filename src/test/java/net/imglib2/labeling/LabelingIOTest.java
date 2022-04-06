@@ -11,13 +11,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -63,7 +63,7 @@ public class LabelingIOTest {
         ImgLabeling imgLabeling = labelingIOService.load("src/test/resources/labeling/labelSaveTestSimple");
         labelingIOService.save(imgLabeling, "src/test/resources/labeling/example1_sav");
         ImgLabeling imgLabeling2 = labelingIOService.load("src/test/resources/labeling/example1_sav");
-        Assert.assertEquals(imgLabeling.getMapping().getLabels(),imgLabeling2.getMapping().getLabels());
+        Assert.assertEquals(imgLabeling.getMapping().getLabels(), imgLabeling2.getMapping().getLabels());
     }
 
     @Test
@@ -72,13 +72,13 @@ public class LabelingIOTest {
         ImgLabeling imgLabeling = labelingIOService.load("src/test/resources/labeling/test");
         labelingIOService.save(imgLabeling, "src/test/resources/labeling/test2");
         ImgLabeling imgLabeling2 = labelingIOService.load("src/test/resources/labeling/test2");
-        Assert.assertEquals(imgLabeling.getMapping().getLabels(),imgLabeling2.getMapping().getLabels());
+        Assert.assertEquals(imgLabeling.getMapping().getLabels(), imgLabeling2.getMapping().getLabels());
     }
 
     @Test
     public void saveLabelingWithMetadataPrimitiveTest() throws IOException {
         ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
-        context.getService(LabelingIOService.class).saveWithMetaData(labeling, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath(), new Example("a",2.0,1));
+        context.getService(LabelingIOService.class).saveWithMetaData(labeling, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath(), new Example("a", 2.0, 1));
     }
 
 
@@ -95,46 +95,17 @@ public class LabelingIOTest {
     public void saveLabelingWithMetadataComplexTest() throws IOException {
         ImgLabeling<Example, IntType> labeling = getComplexImgLabeling();
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        labelingIOService.saveWithMetaData(labeling, new File("src/test/resources/labeling/labelSaveTestComplex.tif").getAbsolutePath(), new Example("a",2.0,1));
+        labelingIOService.saveWithMetaData(labeling, new File("src/test/resources/labeling/labelSaveTestComplexMeta.tif").getAbsolutePath(), new Example("a", 2.0, 1));
     }
 
     @Test
     public void loadLabelingWithMetadataComplexWithCodecTest() throws IOException {
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-//        Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplex.bson", Example.class,  Example.class, new ExampleCodec());
-//        ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
-//        Example e = container.getMetadata();
-//        Assert.assertNotNull(e);
-//        Assert.assertEquals(getComplexImgLabeling().getMapping().getLabels(), mapping.getMapping().getLabels());
-    }
-
-    @Test
-    public void saveLabelingWithMetadataComplexWithFunctionTest() {
-        ImgLabeling<Example, IntType> labeling = getComplexImgLabeling();
-        LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        Map<Example, Long> mapping = new HashMap<>();
-        AtomicLong atomicLong = new AtomicLong(0);
-        labeling.getMapping().getLabels().forEach(label -> mapping.put(label, atomicLong.getAndIncrement()));
-        Container container = new Container();
-        container.setImgLabeling(labeling);
-        container.setMetadata(new Example("a",2.0,1));
-//        labelingIOService.saveWithMetaData(container, new File("src/test/resources/labeling/labelSaveTestComplexFunction.tif").getAbsolutePath(),
-//                mapping::get, Example.class, new ExampleCodec());
-    }
-
-    @Test
-    public void loadLabelingWithMetadataComplexWithFunctionTest() throws IOException {
-        Set<Example> labels = getComplexImgLabeling().getMapping().getLabels();
-        LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        Map<Long, Example> map = new HashMap<>();
-        AtomicLong atomicLong = new AtomicLong(0);
-        labels.forEach(label -> map.put(atomicLong.getAndIncrement(), label));
-//        Container<Example, Example, UnsignedByteType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplexFunction.bson", map::get,
-//                Example.class, new ExampleCodec());
-//        Example metadata = container.getMetadata();
-//        Assert.assertNotNull(metadata);
-//        Assert.assertEquals(new Example("a",2.0,1), metadata);
-//        Assert.assertEquals(labels, container.getImgLabeling().getMapping().getLabels());
+        Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplexMeta", Example.class);
+        ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
+        Example e = container.getMetadata();
+        Assert.assertNotNull(e);
+        Assert.assertEquals(getComplexImgLabeling().getMapping().getLabels(), mapping.getMapping().getLabels());
     }
 
     private ImgLabeling<Integer, UnsignedByteType> getSimpleImgLabeling() {

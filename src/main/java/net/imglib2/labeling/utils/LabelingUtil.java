@@ -11,13 +11,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -52,14 +52,14 @@ public class LabelingUtil {
     public final static int VERSION = 3;
 
     /**
-     * @param context the scijava context used in the project
-     * @param filename  the filename of the Img to save
-     * @param rai   the img
-     * @param <T>   the pixel value
+     * @param context  the scijava context used in the project
+     * @param filename the filename of the Img to save
+     * @param rai      the img
+     * @param <T>      the pixel value
      */
     public static <T extends RealType<T>> void saveAsTiff(final Context context,
-            final String filename,
-            final RandomAccessibleInterval<T> rai) {
+                                                          final String filename,
+                                                          final RandomAccessibleInterval<T> rai) {
 
         try {
             new ImgSaver(context).saveImg(filename, ImgView.wrap(rai, null), new SCIFIOConfig().writerSetFailIfOverwriting(false));

@@ -11,13 +11,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -49,6 +49,7 @@ import org.scijava.Context;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -68,154 +69,85 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
     private Context context;
     @Parameter
     private DatasetIOService datasetIOService;
-    private Gson gson;
-
-    @Override
-    public void initialize() {
-        gson = new Gson();
-    }
-
+    private Gson gson = new Gson();
 
     @Override
     public <T, I extends IntegerType<I>> ImgLabeling<T, I> load(String file) throws IOException {
-        String path = LabelingUtil.getFilePathWithExtension(file, LabelingUtil.LBL_ENDING, Paths.get(file).getParent().toString());
-        Reader reader = Files.newBufferedReader(Paths.get(path));
-        LabelingData labelingData = gson.fromJson(reader, LabelingData.class);
-        int version = labelingData.getVersion();
-        int numSets = labelingData.getNumSets();
-        int numSources = labelingData.getNumSources();
-        String indexImg = labelingData.getIndexImg();
-        List<Set<T>> labelSets = readLabelsets(labelingData, numSets);
-        RandomAccessibleInterval<I> img = null;
-        try {
-            img = (Img<I>) datasetIOService.open(LabelingUtil.getFilePathWithExtension(indexImg, TIF_ENDING, Paths.get(file).getParent().toString())).getImgPlus().getImg();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return ImgLabeling.fromImageAndLabelSets(img,  labelSets);
-    }
-
-    @Override
-    public <T, I extends IntegerType<I>> ImgLabeling<T, I> load(String file, Class<T> clazz) throws IOException {
-        String path = LabelingUtil.getFilePathWithExtension(file, LabelingUtil.LBL_ENDING, Paths.get(file).getParent().toString());
-        Reader reader = Files.newBufferedReader(Paths.get(path));
-        LabelingData labelingData = gson.fromJson(reader, LabelingData.class);
-        int version = labelingData.getVersion();
-        int numSets = labelingData.getNumSets();
-        int numSources = labelingData.getNumSources();
-        String indexImg = labelingData.getIndexImg();
-        List<Set<T>> labelSets = readLabelsets(labelingData, numSets);
-        RandomAccessibleInterval<I> img = null;
-        try {
-            img = (Img<I>) datasetIOService.open(LabelingUtil.getFilePathWithExtension(indexImg, TIF_ENDING, Paths.get(file).getParent().toString())).getImgPlus().getImg();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return ImgLabeling.fromImageAndLabelSets(img,  labelSets);
+        return getImgLabeling(file);
     }
 
     @Override
     public <S, T, I extends IntegerType<I>> Container<S, T, I> loadWithMetadata(String file, Class<S> metadataClazz) throws IOException {
-        String path = LabelingUtil.getFilePathWithExtension(file, LabelingUtil.LBL_ENDING, Paths.get(file).getParent().toString());
-        Reader reader = Files.newBufferedReader(Paths.get(path));
-        LabelingData<T,S> labelingData = gson.fromJson(reader, LabelingData.class);
-        int version = labelingData.getVersion();
-        int numSets = labelingData.getNumSets();
-        int numSources = labelingData.getNumSources();
-        String indexImg = labelingData.getIndexImg();
-        List<Set<T>> labelSets = readLabelsets(labelingData, numSets);
-        RandomAccessibleInterval<I> img = null;
-        try {
-            img = (Img<I>) datasetIOService.open(LabelingUtil.getFilePathWithExtension(indexImg, TIF_ENDING, Paths.get(file).getParent().toString())).getImgPlus().getImg();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        LabelingData<T, S> labelingData = readLabelingDataFromJson(file);
         Container container = new Container<>();
-        container.setImgLabeling(ImgLabeling.fromImageAndLabelSets(img,  labelSets));
+        container.setImgLabeling(getImgLabeling(file));
         S metadata = gson.fromJson(gson.toJson(labelingData.getMetadata()), metadataClazz);
         container.setMetadata(metadata);
         return container;
     }
 
-
     @Override
-    public <S, T, I extends IntegerType<I>> Container<S, T, I> loadWithMetadata(String file, LongFunction<T> idToLabel, Class<S> metadataClazz) throws IOException {
-        String path = LabelingUtil.getFilePathWithExtension(file, LabelingUtil.LBL_ENDING, Paths.get(file).getParent().toString());
-        Reader reader = Files.newBufferedReader(Paths.get(path));
-        LabelingData labelingData = gson.fromJson(reader, LabelingData.class);
-        int version = labelingData.getVersion();
-        int numSets = labelingData.getNumSets();
-        int numSources = labelingData.getNumSources();
-        String indexImg = labelingData.getIndexImg();
-        List<Set<T>> labelSets = new ArrayList<Set<T>>(labelingData.getLabelSets().values());
-        RandomAccessibleInterval<I> img = null;
-        try {
-            img = (Img<I>) datasetIOService.open(LabelingUtil.getFilePathWithExtension(indexImg, TIF_ENDING, Paths.get(file).getParent().toString())).getImgPlus().getImg();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Container container = new Container<>();
-        container.setImgLabeling(ImgLabeling.fromImageAndLabelSets(img,  labelSets));
-        S metadata = gson.fromJson(gson.toJson(labelingData.getMetadata()), metadataClazz);
-        container.setMetadata(metadata);
-        return container;
+    public <S, T, I extends IntegerType<I>> Container<S, T, I> loadWithMetadata(String file, LongFunction<T> idToLabel, Class<S> metadataClazz) {
+        throw new NotImplementedException();
     }
 
     @Override
     public <T, I extends IntegerType<I>> void save(ImgLabeling<T, I> imgLabeling, String file) throws IOException {
+        saveWithMetaData(imgLabeling, file, null);
+    }
+
+    @Override
+    public <S, T, I extends IntegerType<I>> void saveWithMetaData(ImgLabeling<T, I> imgLabeling, String file, S metadata) throws IOException {
         LabelingMapping<T> labelingMapping = imgLabeling.getMapping();
         LabelingData labelingData = createBasicLabelingData(file, labelingMapping);
         if (!labelingMapping.getLabels().isEmpty()) {
             createLabelsets(labelingMapping, labelingData);
+
         }
+        labelingData.setMetadata(metadata);
         final Img<I> img = ImgView.wrap(imgLabeling.getIndexImg(), null);
         LabelingUtil.saveAsTiff(context, LabelingUtil.getFilePathWithExtension(file, LabelingUtil.TIF_ENDING, Paths.get(file).getParent().toString()), img);
         writeLabelingFile(file, labelingData);
     }
 
     @Override
-    public <S, T, I extends IntegerType<I>> void saveWithMetaData(ImgLabeling<T,I> imgLabeling, String file, S metadata) throws IOException {
-        LabelingMapping<T> labelingMapping = imgLabeling.getMapping();
-        LabelingData labelingData = createBasicLabelingData(file, labelingMapping);
-        labelingData.setMetadata(metadata);
-        if (!labelingMapping.getLabels().isEmpty()) {
-            createLabelsets(labelingMapping, labelingData);
-
-        }
-        final Img<I> img = ImgView.wrap(imgLabeling.getIndexImg(), null);
-        LabelingUtil.saveAsTiff(context, LabelingUtil.getFilePathWithExtension(file, LabelingUtil.TIF_ENDING, Paths.get(file).getParent().toString()), img);
-        writeLabelingFile(file, labelingData);
+    public <S, T, I extends IntegerType<I>> void saveWithMetaData(ImgLabeling<T, I> imgLabeling, String file, ToLongFunction<T> labelToId, S metadata) throws IOException {
+        throw new NotImplementedException();
     }
 
-    @Override
-    public <S, T, I extends IntegerType<I>> void saveWithMetaData(ImgLabeling<T,I> imgLabeling, String file, ToLongFunction<T> labelToId, S metadata) throws IOException {
-        LabelingMapping<T> labelingMapping = imgLabeling.getMapping();
-        LabelingData labelingData = createBasicLabelingData(file, labelingMapping);
-        labelingData.setMetadata(metadata);
-
-        //TODO: add function transformation
-        final Img<I> img = ImgView.wrap(imgLabeling.getIndexImg(), null);
-        LabelingUtil.saveAsTiff(context, LabelingUtil.getFilePathWithExtension(file, LabelingUtil.TIF_ENDING, Paths.get(file).getParent().toString()), img);
-        writeLabelingFile(file, labelingData);
+    private <T, I extends IntegerType<I>> ImgLabeling<T, I> getImgLabeling(String file) throws IOException {
+        return buildImgLabelingAndImage(file, readLabelingDataFromJson(file));
     }
 
-    private <T,S> void createLabelsets(LabelingMapping<T> labelingMapping, LabelingData<T,S> labelingData) {
-        if(labelingMapping.getLabels().stream().findFirst().get() instanceof Integer){
+    private LabelingData readLabelingDataFromJson(String file) throws IOException {
+        String path = LabelingUtil.getFilePathWithExtension(file, LabelingUtil.LBL_ENDING, Paths.get(file).getParent().toString());
+        Reader reader = Files.newBufferedReader(Paths.get(path));
+        return gson.fromJson(reader, LabelingData.class);
+    }
+
+    private <T, I extends IntegerType<I>> ImgLabeling<T, I> buildImgLabelingAndImage(String file, LabelingData labelingData) throws IOException {
+        int numSets = labelingData.getNumSets();
+        String indexImg = labelingData.getIndexImg();
+        List<Set<T>> labelSets = readLabelsets(labelingData, numSets);
+        RandomAccessibleInterval<I> img = (Img<I>) datasetIOService.open(LabelingUtil.getFilePathWithExtension(indexImg, TIF_ENDING, Paths.get(file).getParent().toString())).getImgPlus().getImg();
+        return ImgLabeling.fromImageAndLabelSets(img, labelSets);
+    }
+
+    private <T, S> void createLabelsets(LabelingMapping<T> labelingMapping, LabelingData<T, S> labelingData) {
+        if (labelingMapping.getLabels().stream().findFirst().get() instanceof Integer) {
             Map<String, Set<Integer>> labels = new HashMap<>();
             for (int i = 0; i < labelingMapping.numSets(); i++) {
                 labels.put(Integer.toString(i), (Set<Integer>) labelingMapping.labelsAtIndex(i));
             }
             labelingData.setLabelSets(labels);
-        }else{
+        } else {
             Map<String, Set<Integer>> labels = new HashMap<>();
             Map<Integer, T> map = new HashMap<>();
             for (int i = 0; i < labelingMapping.numSets(); i++) {
                 Set<Integer> labelset = new HashSet<>();
-                for(T value : labelingMapping.labelsAtIndex(i)){
-                    if(!map.containsValue(value)){
-                        map.put(map.size()+1, value);
+                for (T value : labelingMapping.labelsAtIndex(i)) {
+                    if (!map.containsValue(value)) {
+                        map.put(map.size() + 1, value);
                     }
                     int mappedInteger = map.entrySet().stream().filter(entry -> value.equals(entry.getValue()))
                             .map(Map.Entry::getKey).findFirst().get();
@@ -228,21 +160,21 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
         }
     }
 
-    private <T, S> List<Set<T>> readLabelsets(LabelingData<T,S> labelingData, int numSets) {
+    private <T, S> List<Set<T>> readLabelsets(LabelingData<T, S> labelingData, int numSets) {
         List<Set<T>> labelSets;
-        if(labelingData.getLabelMapping()==null || labelingData.getLabelMapping().isEmpty()){
+        if (labelingData.getLabelMapping() == null || labelingData.getLabelMapping().isEmpty()) {
             labelSets = new ArrayList<>();
-            for(Set<Integer> set : labelingData.getLabelSets().values()){
+            for (Set<Integer> set : labelingData.getLabelSets().values()) {
                 Set<T> labelSet = new HashSet<>();
-                set.stream().map(v->((Number)v).intValue()).forEach(v -> labelSet.add((T) v));
+                set.stream().map(v -> ((Number) v).intValue()).forEach(v -> labelSet.add((T) v));
                 labelSets.add(labelSet);
             }
-        }else{
+        } else {
             labelSets = new ArrayList<>();
-            for(int i = 0; i< numSets; i++){
+            for (int i = 0; i < numSets; i++) {
                 Set<T> set = new HashSet<>();
-                for(int j : (Set<Integer>) labelingData.getLabelSets().get(Integer.toString(i))){
-                    set.add((T) labelingData.getLabelMapping().get(Integer.toString(j)));
+                for (int j : labelingData.getLabelSets().get(Integer.toString(i))) {
+                    set.add((T) labelingData.getLabelMapping().get(j));
                 }
                 labelSets.add(set);
             }
@@ -250,8 +182,8 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
         return labelSets;
     }
 
-    private <T, S> LabelingData<T,S> createBasicLabelingData(String file, LabelingMapping<T> labelingMapping) {
-        LabelingData<T,S> labelingData = new LabelingData();
+    private <T, S> LabelingData<T, S> createBasicLabelingData(String file, LabelingMapping<T> labelingMapping) {
+        LabelingData<T, S> labelingData = new LabelingData();
         labelingData.setVersion(LabelingUtil.VERSION);
         labelingData.setNumSets(labelingMapping.numSets());
         labelingData.setNumSources(1);
@@ -259,7 +191,7 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
         return labelingData;
     }
 
-    private <T, S> void writeLabelingFile(String file, LabelingData<T,S> labelingData) throws IOException {
+    private <T, S> void writeLabelingFile(String file, LabelingData<T, S> labelingData) throws IOException {
         Writer writer = new FileWriter(LabelingUtil.getFilePathWithExtension(file, LabelingUtil.LBL_ENDING, Paths.get(file).getParent().toString()));
         gson.toJson(labelingData, writer);
         writer.flush();

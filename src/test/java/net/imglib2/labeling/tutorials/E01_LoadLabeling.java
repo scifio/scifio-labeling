@@ -11,13 +11,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -33,20 +33,16 @@
  */
 package net.imglib2.labeling.tutorials;
 
-import net.imglib2.img.Img;
-import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.labeling.LabelingIOService;
+import net.imglib2.labeling.data.Container;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.integer.IntType;
-import net.imglib2.type.numeric.integer.UnsignedByteType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.scijava.Context;
 
 import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class E01_LoadLabeling {
 
@@ -74,52 +70,12 @@ public class E01_LoadLabeling {
     }
 
     @Test
-    public void loadFunctionBasedLabeling() throws IOException {
-        // get the LabelingIO service from the context
-        LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        // creating a mapping for label value to class
-        // this could be the case when your label is actually a more complex data structure which contains more
-        // information. in this case, the user takes care of the mapping from label(id) to data structure
-        List<Example> labels = getComplexImgLabeling();
-        Map<Long, Example> map = new HashMap<>();
-        AtomicLong atomicLong = new AtomicLong(0);
-        labels.forEach(label -> map.put(atomicLong.getAndIncrement(), label));
-        //get the ImgLabeling with Example.class from our mapping through the map.get() function
-//        Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplexFunction.bson", map::get, Example.class, new ExampleCodec());
-//        ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
-//        Assert.assertNotNull(mapping);
-    }
-
-    @Test
     public void loadClassBasedLabeling() throws IOException {
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-//        Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplex.bson", Example.class, Example.class, new ExampleCodec());
-//        ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
-//        Assert.assertNotNull(mapping);
+        Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplex", Example.class);
+        ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
+        Assert.assertNotNull(mapping);
     }
-
-
-    /*
-        Utility classes and functions start here
-     */
-
-    private List<Example> getComplexImgLabeling() {
-        Example[] values1 = new Example[]{new Example("a", 1.0, 1), new Example("b", 2.24121, 2)};
-        Example[] values2 = new Example[]{new Example("a", 1.0, 1)};
-        Example[] values3 = new Example[]{new Example("b", 2.24121, 2), new Example("a", 1.0, 1), new Example("a", 1.0, 3)};
-        // setup
-
-        Img<UnsignedByteType> indexImg = ArrayImgs.unsignedBytes(new byte[]{1, 3, 2}, 1);
-        List<Example> labelSets = Arrays.asList(new Example(), new Example("a", 1.0, 1), new Example("b", 2.24121, 2)
-                , new Example("b", 2.24121, 2), new Example("a", 1.0, 3));
-        return labelSets;
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T> Set<T> asSet(T... values) {
-        return new TreeSet<>(Arrays.asList(values));
-    }
-
 
 }

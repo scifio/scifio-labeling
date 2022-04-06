@@ -85,11 +85,11 @@ public class LabelingData<T, S> {
         return Objects.hash(this.numSets, this.indexImg, this.labelSets);
     }
 
-    public String toJson(){
+    public String toJson() {
         return new Gson().toJson(this);
     }
 
-    public LabelingData fromJson(String json){
+    public LabelingData fromJson(String json) {
         return new Gson().fromJson(json, this.getClass());
     }
 }

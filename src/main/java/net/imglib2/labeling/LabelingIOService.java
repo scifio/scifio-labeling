@@ -11,13 +11,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -47,28 +47,25 @@ import java.util.function.ToLongFunction;
  * Basic support for primitive types and BSON standard types is already included. For non-primitive types,
  * a codec must be set and the class must be given as an argument to the methods.
  *
- *
  * @author Tom Burke
  */
 public interface LabelingIOService extends ImageJService {
 
-    <T, I extends IntegerType<I>> ImgLabeling<T,I> load(String file) throws IOException;
+    <T, I extends IntegerType<I>> ImgLabeling<T, I> load(String file) throws IOException;
 
-    <T, I extends IntegerType<I>> ImgLabeling<T,I> load(String file, Class<T> clazz) throws IOException;
-
-    <T, I extends IntegerType<I>> void save(ImgLabeling<T,I> imgLabeling, String file) throws IOException;
+    <T, I extends IntegerType<I>> void save(ImgLabeling<T, I> imgLabeling, String file) throws IOException;
 
     /**
      * Load a labeling container from the given file path as string.
      * The file path must point to the bson file containing the labeling data.
      *
-     * @param file   The path to the file
+     * @param file          The path to the file
      * @param metadataClazz the metadata class
-     * @param <T>    the label value
-     * @param <I>    IntegerType for the pixel value
-     * @param <S>    Class of the meta data
-     * @throws IOException on file read fail
+     * @param <T>           the label value
+     * @param <I>           IntegerType for the pixel value
+     * @param <S>           Class of the meta data
      * @return a container object holding the ImgLabeling (as well as an optional source mapping)
+     * @throws IOException on file read fail
      */
     <S, T, I extends IntegerType<I>> Container<S, T, I> loadWithMetadata(String file, Class<S> metadataClazz) throws IOException;
 
@@ -76,14 +73,14 @@ public interface LabelingIOService extends ImageJService {
      * Load a labeling container from the given file path as string.
      * The file path must point to the bson file containing the labeling data.
      *
-     * @param file      The path to the file
-     * @param idToLabel a function transforming the label of type T into something else
+     * @param file          The path to the file
+     * @param idToLabel     a function transforming the label of type T into something else
      * @param metadataClazz the metadata class
-     * @param <T>       the label value
-     * @param <I>       IntegerType for the pixel value
-     * @param <S>    Class of the meta data
-     * @throws IOException on file read fail
+     * @param <T>           the label value
+     * @param <I>           IntegerType for the pixel value
+     * @param <S>           Class of the meta data
      * @return a container object holding the ImgLabeling (as well as an optional source mapping)
+     * @throws IOException on file read fail
      */
     <S, T, I extends IntegerType<I>> Container<S, T, I> loadWithMetadata(String file, LongFunction<T> idToLabel, Class<S> metadataClazz) throws IOException;
 
@@ -91,25 +88,25 @@ public interface LabelingIOService extends ImageJService {
      * Save an ImgLabelingContainer in the file-path, transforming it into a bson file and an image.
      * The path must contain the filename (ending does not matter).
      *
-     * @param imgLabeling           the imglabeling object that needs to be serialized
-     * @param file                 the path pointing to the file, including the filename
-     * @param <T>                  the label value
-     * @param <I>                  IntegerType for the pixel value
-     * @param <S>                  Class of the meta data
+     * @param imgLabeling the imglabeling object that needs to be serialized
+     * @param file        the path pointing to the file, including the filename
+     * @param <T>         the label value
+     * @param <I>         IntegerType for the pixel value
+     * @param <S>         Class of the meta data
      */
-    <S, T, I extends IntegerType<I>> void saveWithMetaData(ImgLabeling<T,I> imgLabeling, String file, S metadata) throws IOException;
+    <S, T, I extends IntegerType<I>> void saveWithMetaData(ImgLabeling<T, I> imgLabeling, String file, S metadata) throws IOException;
 
     /**
      * Save an ImgLabelingContainer in the file-path, transforming it into a bson file and an image.
      * The path must contain the filename (ending does not matter).
      *
-     * @param imgLabeling           the imglabeling object that needs to be serialized
-     * @param labelToId            a function to convert the type T to a long value.
-     * @param file                 the path pointing to the file, including the filename
-     * @param <T>                  the label value
-     * @param <I>                  IntegerType for the pixel value
-     * @param <S>                  Class of the meta data
+     * @param imgLabeling the imglabeling object that needs to be serialized
+     * @param labelToId   a function to convert the type T to a long value.
+     * @param file        the path pointing to the file, including the filename
+     * @param <T>         the label value
+     * @param <I>         IntegerType for the pixel value
+     * @param <S>         Class of the meta data
      */
-    <S, T, I extends IntegerType<I>> void saveWithMetaData(ImgLabeling<T,I> imgLabeling, String file, ToLongFunction<T> labelToId, S metadata) throws IOException;
+    <S, T, I extends IntegerType<I>> void saveWithMetaData(ImgLabeling<T, I> imgLabeling, String file, ToLongFunction<T> labelToId, S metadata) throws IOException;
 
 }
