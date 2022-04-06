@@ -40,19 +40,16 @@ import net.imglib2.RandomAccessibleInterval;
 import net.imglib2.exception.IncompatibleTypeException;
 import net.imglib2.img.ImgView;
 import net.imglib2.type.numeric.RealType;
-import org.bson.io.BasicOutputBuffer;
 import org.scijava.Context;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.file.Paths;
 
 public class LabelingUtil {
 
 
-    public static final String BSON_ENDING = ".bson";
+    public static final String LBL_ENDING = ".lbl.json";
     public static final String TIF_ENDING = ".tif";
+    public final static int VERSION = 3;
 
     /**
      * @param context the scijava context used in the project
@@ -67,14 +64,6 @@ public class LabelingUtil {
         try {
             new ImgSaver(context).saveImg(filename, ImgView.wrap(rai, null), new SCIFIOConfig().writerSetFailIfOverwriting(false));
         } catch (ImgIOException | IncompatibleTypeException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void writeToFile(BasicOutputBuffer outputBuffer, File file) {
-        try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
-            outputBuffer.pipe(fileOutputStream);
-        } catch (IOException e) {
             e.printStackTrace();
         }
     }

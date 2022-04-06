@@ -19,7 +19,7 @@
     <orderEntry type="library" name="Maven: com.googlecode.efficient-java-matrix-library:ejml:0.24" level="project" />
     <orderEntry type="library" name="Maven: log4j:log4j:1.2.17" level="project" />
     <orderEntry type="library" name="Maven: net.sf.trove4j:trove4j:3.0.3" level="project" />
-    <orderEntry type="library" name="Maven: org.mongodb:bson:4.2.3" level="project" />
+    <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.6" level="project" />
     <orderEntry type="library" name="Maven: io.scif:scifio:0.41.1" level="project" />
     <orderEntry type="library" name="Maven: io.scif:scifio-jai-imageio:1.1.1" level="project" />
     <orderEntry type="library" name="Maven: net.imagej:imagej-common:0.34.0" level="project" />
