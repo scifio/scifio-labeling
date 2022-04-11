@@ -33,9 +33,13 @@
  */
 package net.imglib2.labeling;
 
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.labeling.data.Container;
+import net.imglib2.labeling.data.LabelingData;
+import net.imglib2.labeling.data.TypeTokenWrapper;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
@@ -46,8 +50,11 @@ import org.scijava.Context;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
+import java.lang.reflect.Type;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class LabelingIOTest {
     Context context;
@@ -60,18 +67,20 @@ public class LabelingIOTest {
     @Test
     public void testEquality() throws IOException {
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        ImgLabeling imgLabeling = labelingIOService.load("src/test/resources/labeling/labelSaveTestSimple");
+        Type type = new TypeTokenWrapper<LabelingData<Integer, Object>>() {}.getType();
+        ImgLabeling imgLabeling = labelingIOService.load("src/test/resources/labeling/labelSaveTestSimple",type);
         labelingIOService.save(imgLabeling, "src/test/resources/labeling/example1_sav");
-        ImgLabeling imgLabeling2 = labelingIOService.load("src/test/resources/labeling/example1_sav");
+        ImgLabeling imgLabeling2 = labelingIOService.load("src/test/resources/labeling/example1_sav", type);
         Assert.assertEquals(imgLabeling.getMapping().getLabels(), imgLabeling2.getMapping().getLabels());
     }
 
     @Test
     public void testEquality2() throws IOException {
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        ImgLabeling imgLabeling = labelingIOService.load("src/test/resources/labeling/test");
+        Type type = new TypeTokenWrapper<LabelingData<Integer, Object>>() {}.getType();
+        ImgLabeling imgLabeling = labelingIOService.load("src/test/resources/labeling/test", type);
         labelingIOService.save(imgLabeling, "src/test/resources/labeling/test2");
-        ImgLabeling imgLabeling2 = labelingIOService.load("src/test/resources/labeling/test2");
+        ImgLabeling imgLabeling2 = labelingIOService.load("src/test/resources/labeling/test2", type);
         Assert.assertEquals(imgLabeling.getMapping().getLabels(), imgLabeling2.getMapping().getLabels());
     }
 
@@ -84,7 +93,7 @@ public class LabelingIOTest {
 
     @Test
     public void loadLabelingWithMetadataPrimitiveTest() throws IOException {
-        Container<Example, Integer, IntType> container = context.getService(LabelingIOService.class).loadWithMetadata("src/test/resources/labeling/labelSaveTestSimpleMeta.tif", Example.class);
+        Container<Example, Integer, IntType> container = context.getService(LabelingIOService.class).loadWithMetadata("src/test/resources/labeling/labelSaveTestSimpleMeta.tif", Example.class , new TypeTokenWrapper<LabelingData<Example, Example>>() {}.getType());
         ImgLabeling<Integer, IntType> mapping = container.getImgLabeling();
         Example e = container.getMetadata();
         Assert.assertNotNull(e);
@@ -101,11 +110,21 @@ public class LabelingIOTest {
     @Test
     public void loadLabelingWithMetadataComplexWithCodecTest() throws IOException {
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplexMeta", Example.class);
+        Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplexMeta", Example.class, new TypeTokenWrapper<LabelingData<Example, Example>>() {}.getType());
         ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
         Example e = container.getMetadata();
         Assert.assertNotNull(e);
         Assert.assertEquals(getComplexImgLabeling().getMapping().getLabels(), mapping.getMapping().getLabels());
+
+
+    }
+
+    @Test
+    public void t() throws IOException {
+        GsonBuilder builder = new GsonBuilder();
+        Type labelingDataType = new TypeToken<LabelingData<Example,Example>>() {}.getType();
+        Reader reader = Files.newBufferedReader(Paths.get("src/test/resources/labeling/labelSaveTestComplexMeta.lbl.json"));
+        LabelingData<Example,Example> labelingData = builder.create().fromJson(reader, labelingDataType);
     }
 
     private ImgLabeling<Integer, UnsignedByteType> getSimpleImgLabeling() {
@@ -127,6 +146,7 @@ public class LabelingIOTest {
         List<Set<Example>> labelSets = Arrays.asList(asSet(), asSet(values1), asSet(values2), asSet(values3));
         return ImgLabeling.fromImageAndLabelSets(indexImg, labelSets);
     }
+
 
     @SuppressWarnings("unchecked")
     private <T> Set<T> asSet(T... values) {

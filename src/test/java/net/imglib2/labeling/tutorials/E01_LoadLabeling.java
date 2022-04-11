@@ -35,6 +35,8 @@ package net.imglib2.labeling.tutorials;
 
 import net.imglib2.labeling.LabelingIOService;
 import net.imglib2.labeling.data.Container;
+import net.imglib2.labeling.data.LabelingData;
+import net.imglib2.labeling.data.TypeTokenWrapper;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.integer.IntType;
 import org.junit.Assert;
@@ -43,6 +45,7 @@ import org.junit.Test;
 import org.scijava.Context;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 public class E01_LoadLabeling {
 
@@ -62,7 +65,9 @@ public class E01_LoadLabeling {
         // the container contains an ImgLabeling of that type as well as an optional sourcemap
         // the sourcemap is a mapping of a source img to a list of labels that where contained in it and added to 
         // the ImgLabeling
-        ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load("src/test/resources/labeling/labelSaveTestSimple.lbl.json");
+        Type type = new TypeTokenWrapper<LabelingData<Integer, Object>>() {}.getType();
+
+        ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load("src/test/resources/labeling/labelSaveTestSimple.lbl.json", type);
         Assert.assertNotNull(imgLabeling);
         Assert.assertNotNull(imgLabeling.getIndexImg());
         Assert.assertFalse(imgLabeling.getMapping().getLabels().isEmpty());
@@ -73,7 +78,8 @@ public class E01_LoadLabeling {
     public void loadClassBasedLabeling() throws IOException {
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplex", Example.class);
+        Type type = new TypeTokenWrapper<LabelingData<Example, Example>>() {}.getType();
+        Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplex", Example.class, type);
         ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
         Assert.assertNotNull(mapping);
     }

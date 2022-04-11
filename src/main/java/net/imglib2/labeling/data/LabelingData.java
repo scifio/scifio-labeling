@@ -92,4 +92,9 @@ public class LabelingData<T, S> {
     public LabelingData fromJson(String json) {
         return new Gson().fromJson(json, this.getClass());
     }
+
+    @Override
+    public String toString() {
+        return this.toJson();
+    }
 }
