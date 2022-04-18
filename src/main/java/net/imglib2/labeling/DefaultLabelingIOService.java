@@ -165,16 +165,14 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
     }
 
     private <T, S> List<Set<T>> readLabelsets(LabelingData<T, S> labelingData, int numSets) {
-        List<Set<T>> labelSets;
+        List<Set<T>> labelSets = new ArrayList<>();
         if (labelingData.getLabelMapping() == null || labelingData.getLabelMapping().isEmpty()) {
-            labelSets = new ArrayList<>();
             for (Set<Integer> set : labelingData.getLabelSets().values()) {
                 Set<T> labelSet = new HashSet<>();
                 set.stream().map(v -> ((Number) v).intValue()).forEach(v -> labelSet.add((T) v));
                 labelSets.add(labelSet);
             }
         } else {
-            labelSets = new ArrayList<>();
             for (int i = 0; i < numSets; i++) {
                 Set<T> set = new HashSet<>();
                 for (int j : labelingData.getLabelSets().get(Integer.toString(i))) {
