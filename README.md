@@ -1,4 +1,4 @@
-[![](https://github.com/scifio/Labeling/actions/workflows/build-main.yml/badge.svg)](https://github.com/scifio/Labeling/actions/workflows/build-main.yml)
+[![](https://github.com/scifio/scifio-labeling/actions/workflows/build-main.yml/badge.svg)](https://github.com/scifio/scifio-labeling/actions/workflows/build-main.yml)
 
 # ImgLabeling I/O
 
