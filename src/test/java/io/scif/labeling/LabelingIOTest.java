@@ -51,134 +51,134 @@ import java.nio.file.Paths;
 import java.util.*;
 
 public class LabelingIOTest {
-    Context context;
+	Context context;
 
-    @Before
-    public void beforeTests() {
-        context = new Context();
-    }
+	@Before
+	public void beforeTests() {
+		context = new Context();
+	}
 
-    @Test
-    public void testEquality() throws IOException {
-        LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load("src/test/resources/labeling/labelSaveTestSimple", Integer.class, IntType.class);
-        labelingIOService.save(imgLabeling, "src/test/resources/labeling/example1_sav");
-        ImgLabeling<Integer, IntType> imgLabeling2 = labelingIOService.load("src/test/resources/labeling/example1_sav", Integer.class, IntType.class);
-        Assert.assertEquals(imgLabeling.getMapping().getLabels(), imgLabeling2.getMapping().getLabels());
-    }
+	@Test
+	public void testEquality() throws IOException {
+		LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
+		ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load("src/test/resources/labeling/labelSaveTestSimple", Integer.class, IntType.class);
+		labelingIOService.save(imgLabeling, "src/test/resources/labeling/example1_sav");
+		ImgLabeling<Integer, IntType> imgLabeling2 = labelingIOService.load("src/test/resources/labeling/example1_sav", Integer.class, IntType.class);
+		Assert.assertEquals(imgLabeling.getMapping().getLabels(), imgLabeling2.getMapping().getLabels());
+	}
 
-    @Test
-    public void testEquality2() throws IOException {
-        LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load("src/test/resources/labeling/test", Integer.class, IntType.class);
-        labelingIOService.save(imgLabeling, "src/test/resources/labeling/test2");
-        ImgLabeling<Integer, IntType> imgLabeling2 = labelingIOService.load("src/test/resources/labeling/test2", Integer.class, IntType.class);
-        Assert.assertEquals(imgLabeling.getMapping().getLabels(), imgLabeling2.getMapping().getLabels());
-    }
+	@Test
+	public void testEquality2() throws IOException {
+		LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
+		ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load("src/test/resources/labeling/test", Integer.class, IntType.class);
+		labelingIOService.save(imgLabeling, "src/test/resources/labeling/test2");
+		ImgLabeling<Integer, IntType> imgLabeling2 = labelingIOService.load("src/test/resources/labeling/test2", Integer.class, IntType.class);
+		Assert.assertEquals(imgLabeling.getMapping().getLabels(), imgLabeling2.getMapping().getLabels());
+	}
 
-    @Test
-    public void saveLabelingWithMetadataPrimitiveTest() throws IOException {
-        ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
-        context.getService(LabelingIOService.class).saveWithMetaData(labeling, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath(), new Example("a", 2.0, 1));
-    }
+	@Test
+	public void saveLabelingWithMetadataPrimitiveTest() throws IOException {
+		ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
+		context.getService(LabelingIOService.class).saveWithMetaData(labeling, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath(), new Example("a", 2.0, 1));
+	}
 
-    @Test
-    public void loadLabelingWithMetadataPrimitiveTest() throws IOException {
-        Container<Example, Integer, IntType>
-            container = context.getService(LabelingIOService.class).loadWithMetadata("src/test/resources/labeling/labelSaveTestSimpleMeta.tif", Example.class, Integer.class, IntType.class);
-        ImgLabeling<Integer, IntType> mapping = container.getImgLabeling();
-        Example e = container.getMetadata();
-        Assert.assertNotNull(e);
-        Assert.assertEquals(getSimpleImgLabeling().getMapping().getLabels(), mapping.getMapping().getLabels());
-    }
+	@Test
+	public void loadLabelingWithMetadataPrimitiveTest() throws IOException {
+		Container<Example, Integer, IntType>
+		container = context.getService(LabelingIOService.class).loadWithMetadata("src/test/resources/labeling/labelSaveTestSimpleMeta.tif", Example.class, Integer.class, IntType.class);
+		ImgLabeling<Integer, IntType> mapping = container.getImgLabeling();
+		Example e = container.getMetadata();
+		Assert.assertNotNull(e);
+		Assert.assertEquals(getSimpleImgLabeling().getMapping().getLabels(), mapping.getMapping().getLabels());
+	}
 
-    @Test
-    public void saveLabelingWithMetadataComplexTest() throws IOException {
-        ImgLabeling<Example, IntType> labeling = getComplexImgLabeling();
-        LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        labelingIOService.saveWithMetaData(labeling, new File("src/test/resources/labeling/labelSaveTestComplexMeta.tif").getAbsolutePath(), new Example("a", 2.0, 1));
-    }
+	@Test
+	public void saveLabelingWithMetadataComplexTest() throws IOException {
+		ImgLabeling<Example, IntType> labeling = getComplexImgLabeling();
+		LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
+		labelingIOService.saveWithMetaData(labeling, new File("src/test/resources/labeling/labelSaveTestComplexMeta.tif").getAbsolutePath(), new Example("a", 2.0, 1));
+	}
 
-    @Test
-    public void loadLabelingWithMetadataComplexWithCodecTest() throws IOException {
-        LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplexMeta", Example.class, Example.class, IntType.class);
-        ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
-        Example e = container.getMetadata();
-        Assert.assertNotNull(e);
-        Assert.assertEquals(getComplexImgLabeling().getMapping().getLabels(), mapping.getMapping().getLabels());
-    }
+	@Test
+	public void loadLabelingWithMetadataComplexWithCodecTest() throws IOException {
+		LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
+		Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplexMeta", Example.class, Example.class, IntType.class);
+		ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
+		Example e = container.getMetadata();
+		Assert.assertNotNull(e);
+		Assert.assertEquals(getComplexImgLabeling().getMapping().getLabels(), mapping.getMapping().getLabels());
+	}
 
-    @Test
-    public void t() throws IOException {
-        GsonBuilder builder = new GsonBuilder();
-        Reader reader = Files.newBufferedReader(Paths.get("src/test/resources/labeling/labelSaveTestComplexMeta.lbl.json"));
-        Type labelingDataType = new TypeToken<LabelingData<Example,Example>>() {}.getType();
-        LabelingData<Example,Example> labelingData = builder.create().fromJson(reader, labelingDataType);
-    }
+	@Test
+	public void t() throws IOException {
+		GsonBuilder builder = new GsonBuilder();
+		Reader reader = Files.newBufferedReader(Paths.get("src/test/resources/labeling/labelSaveTestComplexMeta.lbl.json"));
+		Type labelingDataType = new TypeToken<LabelingData<Example,Example>>() {}.getType();
+		LabelingData<Example,Example> labelingData = builder.create().fromJson(reader, labelingDataType);
+	}
 
-    private ImgLabeling<Integer, UnsignedByteType> getSimpleImgLabeling() {
-        Integer[] values1 = new Integer[]{42, 13};
-        Integer[] values2 = new Integer[]{1};
-        Integer[] values3 = new Integer[]{1, 13, 42};
-        // setup
-        Img<UnsignedByteType> indexImg = ArrayImgs.unsignedBytes(new byte[]{1, 0, 2}, 1);
-        List<Set<Integer>> labelSets = Arrays.asList(asSet(), asSet(values1), asSet(values2), asSet(values3));
-        return ImgLabeling.fromImageAndLabelSets(indexImg, labelSets);
-    }
+	private ImgLabeling<Integer, UnsignedByteType> getSimpleImgLabeling() {
+		Integer[] values1 = new Integer[]{42, 13};
+		Integer[] values2 = new Integer[]{1};
+		Integer[] values3 = new Integer[]{1, 13, 42};
+		// setup
+		Img<UnsignedByteType> indexImg = ArrayImgs.unsignedBytes(new byte[]{1, 0, 2}, 1);
+		List<Set<Integer>> labelSets = Arrays.asList(asSet(), asSet(values1), asSet(values2), asSet(values3));
+		return ImgLabeling.fromImageAndLabelSets(indexImg, labelSets);
+	}
 
-    private ImgLabeling<Example, IntType> getComplexImgLabeling() {
-        Example[] values1 = new Example[]{new Example("a", 1.0, 1), new Example("b", 2.24121, 2)};
-        Example[] values2 = new Example[]{new Example("a", 1.0, 1)};
-        Example[] values3 = new Example[]{new Example("b", 2.24121, 2), new Example("a", 1.0, 1), new Example("a", 1.0, 3)};
-        // setup
-        Img<IntType> indexImg = ArrayImgs.ints(new int[]{1, 0, 2}, 1);
-        List<Set<Example>> labelSets = Arrays.asList(asSet(), asSet(values1), asSet(values2), asSet(values3));
-        return ImgLabeling.fromImageAndLabelSets(indexImg, labelSets);
-    }
-
-
-    @SuppressWarnings("unchecked")
-    private <T> Set<T> asSet(T... values) {
-        return new TreeSet<>(Arrays.asList(values));
-    }
+	private ImgLabeling<Example, IntType> getComplexImgLabeling() {
+		Example[] values1 = new Example[]{new Example("a", 1.0, 1), new Example("b", 2.24121, 2)};
+		Example[] values2 = new Example[]{new Example("a", 1.0, 1)};
+		Example[] values3 = new Example[]{new Example("b", 2.24121, 2), new Example("a", 1.0, 1), new Example("a", 1.0, 3)};
+		// setup
+		Img<IntType> indexImg = ArrayImgs.ints(new int[]{1, 0, 2}, 1);
+		List<Set<Example>> labelSets = Arrays.asList(asSet(), asSet(values1), asSet(values2), asSet(values3));
+		return ImgLabeling.fromImageAndLabelSets(indexImg, labelSets);
+	}
 
 
-    private static class Example implements Comparable<Example> {
+	@SuppressWarnings("unchecked")
+	private <T> Set<T> asSet(T... values) {
+		return new TreeSet<>(Arrays.asList(values));
+	}
 
-        private final String a;
 
-        private final double b;
+	private static class Example implements Comparable<Example> {
 
-        private final int c;
+		private final String a;
 
-        public Example(String a, double b, int c) {
-            this.a = a;
-            this.b = b;
-            this.c = c;
-        }
+		private final double b;
 
-        @Override
-        public boolean equals(Object o) {
-            if (this == o)
-                return true;
-            if (o == null || getClass() != o.getClass())
-                return false;
-            Example example = (Example) o;
-            return Double.compare(example.b, b) == 0 &&
-                    c == example.c &&
-                    Objects.equals(a, example.a);
-        }
+		private final int c;
 
-        @Override
-        public int hashCode() {
-            return Objects.hash(a, b, c);
-        }
+		public Example(String a, double b, int c) {
+			this.a = a;
+			this.b = b;
+			this.c = c;
+		}
 
-        @Override
-        public int compareTo(Example o) {
-            return this.equals(o) ? 0 : 1;
-        }
-    }
+		@Override
+		public boolean equals(Object o) {
+			if (this == o)
+				return true;
+			if (o == null || getClass() != o.getClass())
+				return false;
+			Example example = (Example) o;
+			return Double.compare(example.b, b) == 0 &&
+					c == example.c &&
+					Objects.equals(a, example.a);
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(a, b, c);
+		}
+
+		@Override
+		public int compareTo(Example o) {
+			return this.equals(o) ? 0 : 1;
+		}
+	}
 
 }

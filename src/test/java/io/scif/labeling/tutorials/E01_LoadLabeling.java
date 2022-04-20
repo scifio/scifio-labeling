@@ -41,37 +41,37 @@ import java.io.IOException;
 
 public class E01_LoadLabeling {
 
-    Context context;
+	Context context;
 
-    @Before
-    public void beforeTests() {
-        context = new Context();
-    }
+	@Before
+	public void beforeTests() {
+		context = new Context();
+	}
 
 
-    @Test
-    public void loadBasicLabeling() throws IOException {
-        // get the LabelingIO service from the context
-        LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        // load a JSON file with IntType labels
-        // the container contains an ImgLabeling of that type as well as an optional sourcemap
-        // the sourcemap is a mapping of a source img to a list of labels that where contained in it and added to 
-        // the ImgLabeling
+	@Test
+	public void loadBasicLabeling() throws IOException {
+		// get the LabelingIO service from the context
+		LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
+		// load a JSON file with IntType labels
+		// the container contains an ImgLabeling of that type as well as an optional sourcemap
+		// the sourcemap is a mapping of a source img to a list of labels that where contained in it and added to 
+		// the ImgLabeling
 
-        ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load("src/test/resources/labeling/labelSaveTestSimple.lbl.json", Integer.class, IntType.class);
-        Assert.assertNotNull(imgLabeling);
-        Assert.assertNotNull(imgLabeling.getIndexImg());
-        Assert.assertFalse(imgLabeling.getMapping().getLabels().isEmpty());
+		ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load("src/test/resources/labeling/labelSaveTestSimple.lbl.json", Integer.class, IntType.class);
+		Assert.assertNotNull(imgLabeling);
+		Assert.assertNotNull(imgLabeling.getIndexImg());
+		Assert.assertFalse(imgLabeling.getMapping().getLabels().isEmpty());
 
-    }
+	}
 
-    @Test
-    public void loadClassBasedLabeling() throws IOException {
-        // get the LabelingIO service from the context
-        LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplex", Example.class, Example.class, IntType.class);
-        ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
-        Assert.assertNotNull(mapping);
-    }
+	@Test
+	public void loadClassBasedLabeling() throws IOException {
+		// get the LabelingIO service from the context
+		LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
+		Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplex", Example.class, Example.class, IntType.class);
+		ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
+		Assert.assertNotNull(mapping);
+	}
 
 }

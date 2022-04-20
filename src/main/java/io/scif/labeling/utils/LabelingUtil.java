@@ -42,34 +42,34 @@ import java.nio.file.Paths;
 public class LabelingUtil {
 
 
-    public static final String LBL_ENDING = ".lbl.json";
-    public static final String TIF_ENDING = ".tif";
-    public final static int VERSION = 3;
+	public static final String LBL_ENDING = ".lbl.json";
+	public static final String TIF_ENDING = ".tif";
+	public final static int VERSION = 3;
 
-    /**
-     * @param context  the scijava context used in the project
-     * @param filename the filename of the Img to save
-     * @param rai      the img
-     * @param <T>      the pixel value
-     */
-    public static <T extends RealType<T>> void saveAsTiff(final Context context,
-                                                          final String filename,
-                                                          final RandomAccessibleInterval<T> rai) {
+	/**
+	 * @param context  the scijava context used in the project
+	 * @param filename the filename of the Img to save
+	 * @param rai      the img
+	 * @param <T>      the pixel value
+	 */
+	public static <T extends RealType<T>> void saveAsTiff(final Context context,
+		final String filename,
+		final RandomAccessibleInterval<T> rai) {
 
-        try {
-            new ImgSaver(context).saveImg(filename, ImgView.wrap(rai, null), new SCIFIOConfig().writerSetFailIfOverwriting(false));
-        } catch (ImgIOException | IncompatibleTypeException e) {
-            e.printStackTrace();
-        }
-    }
+		try {
+			new ImgSaver(context).saveImg(filename, ImgView.wrap(rai, null), new SCIFIOConfig().writerSetFailIfOverwriting(false));
+		} catch (ImgIOException | IncompatibleTypeException e) {
+			e.printStackTrace();
+		}
+	}
 
-    public static String getFilePathWithExtension(final String filename, final String extension, String path) {
-        path = (path == null) ? "" : path;
-        String actualFilename = Paths.get(filename).getFileName().toString();
-        if (actualFilename.endsWith(extension)) {
-            return Paths.get(path, actualFilename).toString();
-        }
-        final int index = actualFilename.lastIndexOf(".");
-        return Paths.get(path, actualFilename.substring(0, index == -1 ? actualFilename.length() : index).concat(extension)).toString();
-    }
+	public static String getFilePathWithExtension(final String filename, final String extension, String path) {
+		path = (path == null) ? "" : path;
+		String actualFilename = Paths.get(filename).getFileName().toString();
+		if (actualFilename.endsWith(extension)) {
+			return Paths.get(path, actualFilename).toString();
+		}
+		final int index = actualFilename.lastIndexOf(".");
+		return Paths.get(path, actualFilename.substring(0, index == -1 ? actualFilename.length() : index).concat(extension)).toString();
+	}
 }

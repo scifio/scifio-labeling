@@ -45,75 +45,75 @@ import java.util.*;
 
 public class E02_SaveLabeling {
 
-    Context context;
+	Context context;
 
-    @Before
-    public void beforeTests() {
-        context = new Context();
-    }
+	@Before
+	public void beforeTests() {
+		context = new Context();
+	}
 
 
-    @Test
-    public void saveLabelingTest() throws IOException {
-        ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
-        // get the LabelingIO service from the context
-        LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        labelingIOService.save(labeling, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath());
+	@Test
+	public void saveLabelingTest() throws IOException {
+		ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
+		// get the LabelingIO service from the context
+		LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
+		labelingIOService.save(labeling, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath());
 
-    }
+	}
 
-    @Test
-    public void saveLabelingTest2() throws IOException {
-        ImgLabeling<Example, IntType> labeling = getComplexImgLabeling();
-        // get the LabelingIO service from the context
-        LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        labelingIOService.save(labeling, new File("src/test/resources/labeling/labelSaveTestComplex.tif").getAbsolutePath());
+	@Test
+	public void saveLabelingTest2() throws IOException {
+		ImgLabeling<Example, IntType> labeling = getComplexImgLabeling();
+		// get the LabelingIO service from the context
+		LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
+		labelingIOService.save(labeling, new File("src/test/resources/labeling/labelSaveTestComplex.tif").getAbsolutePath());
 
-    }
+	}
 
-    @Test
-    public void saveLabelingWithMetaDataTest() throws IOException {
-        ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
-        Container<Map, Integer, UnsignedByteType> container = new Container<>();
-        container.setImgLabeling(labeling);
-        // If you want to store metadata as a map, make sure that their are codecs for every value.
-        // Also, the key of the map must be string. If you need anything else, implement your own map codec.
-        Map<String, Integer> sources = new HashMap<>();
-        sources.put("one", 1);
-        sources.put("two", 2);
-        sources.put("three", 3);
+	@Test
+	public void saveLabelingWithMetaDataTest() throws IOException {
+		ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
+		Container<Map, Integer, UnsignedByteType> container = new Container<>();
+		container.setImgLabeling(labeling);
+		// If you want to store metadata as a map, make sure that their are codecs for every value.
+		// Also, the key of the map must be string. If you need anything else, implement your own map codec.
+		Map<String, Integer> sources = new HashMap<>();
+		sources.put("one", 1);
+		sources.put("two", 2);
+		sources.put("three", 3);
 
-        container.setMetadata(sources);
+		container.setMetadata(sources);
 
-        // get the LabelingIO service from the context
-        LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        labelingIOService.saveWithMetaData(labeling, new File("src/test/resources/labeling/labelSaveTestSimpleMeta.tif").getAbsolutePath(), sources);
+		// get the LabelingIO service from the context
+		LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
+		labelingIOService.saveWithMetaData(labeling, new File("src/test/resources/labeling/labelSaveTestSimpleMeta.tif").getAbsolutePath(), sources);
 
-    }
+	}
 
-    private ImgLabeling<Integer, UnsignedByteType> getSimpleImgLabeling() {
-        Integer[] values1 = new Integer[]{42, 13};
-        Integer[] values2 = new Integer[]{1};
-        Integer[] values3 = new Integer[]{1, 13, 42};
-        // setup
-        Img<UnsignedByteType> indexImg = ArrayImgs.unsignedBytes(new byte[]{1, 0, 2}, 3);
-        List<Set<Integer>> labelSets = Arrays.asList(asSet(), asSet(values1), asSet(values2), asSet(values3));
-        return ImgLabeling.fromImageAndLabelSets(indexImg, labelSets);
-    }
+	private ImgLabeling<Integer, UnsignedByteType> getSimpleImgLabeling() {
+		Integer[] values1 = new Integer[]{42, 13};
+		Integer[] values2 = new Integer[]{1};
+		Integer[] values3 = new Integer[]{1, 13, 42};
+		// setup
+		Img<UnsignedByteType> indexImg = ArrayImgs.unsignedBytes(new byte[]{1, 0, 2}, 3);
+		List<Set<Integer>> labelSets = Arrays.asList(asSet(), asSet(values1), asSet(values2), asSet(values3));
+		return ImgLabeling.fromImageAndLabelSets(indexImg, labelSets);
+	}
 
-    private ImgLabeling<Example, IntType> getComplexImgLabeling() {
-        Example[] values1 = new Example[]{new Example("a", 1.0, 1), new Example("b", 2.24121, 2)};
-        Example[] values2 = new Example[]{new Example("a", 1.0, 1)};
-        Example[] values3 = new Example[]{new Example("b", 2.24121, 2), new Example("a", 1.0, 1), new Example("a", 1.0, 3)};
-        // setup
-        Img<IntType> indexImg = ArrayImgs.ints(new int[]{1, 0, 2}, 3);
-        List<Set<Example>> labelSets = Arrays.asList(asSet(), asSet(values1), asSet(values2), asSet(values3));
-        return ImgLabeling.fromImageAndLabelSets(indexImg, labelSets);
-    }
+	private ImgLabeling<Example, IntType> getComplexImgLabeling() {
+		Example[] values1 = new Example[]{new Example("a", 1.0, 1), new Example("b", 2.24121, 2)};
+		Example[] values2 = new Example[]{new Example("a", 1.0, 1)};
+		Example[] values3 = new Example[]{new Example("b", 2.24121, 2), new Example("a", 1.0, 1), new Example("a", 1.0, 3)};
+		// setup
+		Img<IntType> indexImg = ArrayImgs.ints(new int[]{1, 0, 2}, 3);
+		List<Set<Example>> labelSets = Arrays.asList(asSet(), asSet(values1), asSet(values2), asSet(values3));
+		return ImgLabeling.fromImageAndLabelSets(indexImg, labelSets);
+	}
 
-    @SuppressWarnings("unchecked")
-    private <T> Set<T> asSet(T... values) {
-        return new TreeSet<>(Arrays.asList(values));
-    }
+	@SuppressWarnings("unchecked")
+	private <T> Set<T> asSet(T... values) {
+		return new TreeSet<>(Arrays.asList(values));
+	}
 
 }
