@@ -83,7 +83,7 @@
 	</ciManagement>
 
 	<properties>
-		<package-name>io.scif.roi.io</package-name>
+		<package-name>io.scif.labeling</package-name>
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>SCIFIO developers.</license.copyrightOwners>
 		<license.projectName>SCIFIO library for reading and converting scientific file formats.</license.projectName>
