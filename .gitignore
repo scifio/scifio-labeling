@@ -3,6 +3,9 @@
 /.project
 /.settings/
 
+# IntelliJ metadata
+/*.iml
+
 # Compiled class file
 *.class
 
