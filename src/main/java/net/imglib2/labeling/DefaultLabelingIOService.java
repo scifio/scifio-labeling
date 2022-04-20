@@ -140,7 +140,8 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
     }
 
     private <T, S> void createLabelsets(LabelingMapping<T> labelingMapping, LabelingData<T, S> labelingData) {
-        if (labelingMapping.getLabels().stream().findFirst().get() instanceof Integer) {
+        Optional<T> optional = labelingMapping.getLabels().stream().findFirst();
+        if (optional.isPresent() && optional.get() instanceof Integer) {
             Map<String, Set<Integer>> labels = new HashMap<>();
             for (int i = 0; i < labelingMapping.numSets(); i++) {
                 labels.put(Integer.toString(i), (Set<Integer>) labelingMapping.labelsAtIndex(i));
