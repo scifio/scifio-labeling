@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -26,6 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
+
 package io.scif.labeling.tutorials;
 
 import java.util.Objects;
@@ -38,25 +39,21 @@ class Example implements Comparable<Example> {
 
 	int c;
 
-	public Example() {
-	}
+	public Example() {}
 
-	public Example(String a, double b, int c) {
+	public Example(final String a, final double b, final int c) {
 		this.a = a;
 		this.b = b;
 		this.c = c;
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-		Example example = (Example) o;
-		return Double.compare(example.b, b) == 0 &&
-				c == example.c &&
-				Objects.equals(a, example.a);
+	public boolean equals(final Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		final Example example = (Example) o;
+		return Double.compare(example.b, b) == 0 && c == example.c && Objects
+			.equals(a, example.a);
 	}
 
 	@Override
@@ -65,7 +62,7 @@ class Example implements Comparable<Example> {
 	}
 
 	@Override
-	public int compareTo(Example o) {
+	public int compareTo(final Example o) {
 		return this.equals(o) ? 0 : 1;
 	}
 }

@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -26,6 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
+
 package io.scif.labeling.data;
 
 import net.imglib2.roi.labeling.ImgLabeling;
@@ -40,7 +41,7 @@ public class Container<S, T, I extends IntegerType<I>> {
 		return imgLabeling;
 	}
 
-	public void setImgLabeling(ImgLabeling<T, I> imgLabeling) {
+	public void setImgLabeling(final ImgLabeling<T, I> imgLabeling) {
 		this.imgLabeling = imgLabeling;
 	}
 
@@ -48,7 +49,7 @@ public class Container<S, T, I extends IntegerType<I>> {
 		return metadata;
 	}
 
-	public void setMetadata(S metadata) {
+	public void setMetadata(final S metadata) {
 		this.metadata = metadata;
 	}
 }

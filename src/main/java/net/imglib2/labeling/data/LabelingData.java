@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -26,6 +26,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
+
 package net.imglib2.labeling.data;
 
 import com.google.gson.Gson;
@@ -48,7 +49,7 @@ public class LabelingData<T, S> {
 		return this.version;
 	}
 
-	public void setVersion(int version) {
+	public void setVersion(final int version) {
 		this.version = version;
 	}
 
@@ -56,7 +57,7 @@ public class LabelingData<T, S> {
 		return this.numSets;
 	}
 
-	public void setNumSets(int numSets) {
+	public void setNumSets(final int numSets) {
 		this.numSets = numSets;
 	}
 
@@ -64,7 +65,7 @@ public class LabelingData<T, S> {
 		return this.numSources;
 	}
 
-	public void setNumSources(int numSources) {
+	public void setNumSources(final int numSources) {
 		this.numSources = numSources;
 	}
 
@@ -72,7 +73,7 @@ public class LabelingData<T, S> {
 		return this.indexImg;
 	}
 
-	public void setIndexImg(String indexImg) {
+	public void setIndexImg(final String indexImg) {
 		this.indexImg = indexImg;
 	}
 
@@ -80,7 +81,7 @@ public class LabelingData<T, S> {
 		return this.labelMapping;
 	}
 
-	public void setLabelMapping(Map<Integer, T> labelMapping) {
+	public void setLabelMapping(final Map<Integer, T> labelMapping) {
 		this.labelMapping = labelMapping;
 	}
 
@@ -88,7 +89,7 @@ public class LabelingData<T, S> {
 		return this.labelSets;
 	}
 
-	public void setLabelSets(Map<String, Set<Integer>> labelSets) {
+	public void setLabelSets(final Map<String, Set<Integer>> labelSets) {
 		this.labelSets = labelSets;
 	}
 
@@ -96,16 +97,17 @@ public class LabelingData<T, S> {
 		return this.metadata;
 	}
 
-	public void setMetadata(S metadata) {
+	public void setMetadata(final S metadata) {
 		this.metadata = metadata;
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		if (this == o) return true;
 		if (o == null || this.getClass() != o.getClass()) return false;
-		LabelingData that = (LabelingData) o;
-		return this.numSets == that.numSets && this.indexImg.equals(that.indexImg) && this.labelSets.equals(that.labelSets);
+		final LabelingData that = (LabelingData) o;
+		return this.numSets == that.numSets && this.indexImg.equals(
+			that.indexImg) && this.labelSets.equals(that.labelSets);
 	}
 
 	@Override
@@ -117,7 +119,7 @@ public class LabelingData<T, S> {
 		return new Gson().toJson(this);
 	}
 
-	public LabelingData fromJson(String json) {
+	public LabelingData fromJson(final String json) {
 		return new Gson().fromJson(json, this.getClass());
 	}
 

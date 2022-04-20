@@ -6,13 +6,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -26,18 +26,21 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
+
 package io.scif.labeling.tutorials;
 
 import io.scif.labeling.LabelingIOService;
 import io.scif.labeling.data.Container;
+
+import java.io.IOException;
+
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.integer.IntType;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.scijava.Context;
-
-import java.io.IOException;
 
 public class E01_LoadLabeling {
 
@@ -48,17 +51,21 @@ public class E01_LoadLabeling {
 		context = new Context();
 	}
 
-
 	@Test
 	public void loadBasicLabeling() throws IOException {
 		// get the LabelingIO service from the context
-		LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
+		final LabelingIOService labelingIOService = context.getService(
+			LabelingIOService.class);
 		// load a JSON file with IntType labels
-		// the container contains an ImgLabeling of that type as well as an optional sourcemap
-		// the sourcemap is a mapping of a source img to a list of labels that where contained in it and added to 
+		// the container contains an ImgLabeling of that type as well as an optional
+		// sourcemap
+		// the sourcemap is a mapping of a source img to a list of labels that where
+		// contained in it and added to
 		// the ImgLabeling
 
-		ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load("src/test/resources/labeling/labelSaveTestSimple.lbl.json", Integer.class, IntType.class);
+		final ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load(
+			"src/test/resources/labeling/labelSaveTestSimple.lbl.json", Integer.class,
+			IntType.class);
 		Assert.assertNotNull(imgLabeling);
 		Assert.assertNotNull(imgLabeling.getIndexImg());
 		Assert.assertFalse(imgLabeling.getMapping().getLabels().isEmpty());
@@ -68,9 +75,12 @@ public class E01_LoadLabeling {
 	@Test
 	public void loadClassBasedLabeling() throws IOException {
 		// get the LabelingIO service from the context
-		LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-		Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplex", Example.class, Example.class, IntType.class);
-		ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
+		final LabelingIOService labelingIOService = context.getService(
+			LabelingIOService.class);
+		final Container<Example, Example, IntType> container = labelingIOService
+			.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplex",
+				Example.class, Example.class, IntType.class);
+		final ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
 		Assert.assertNotNull(mapping);
 	}
 
