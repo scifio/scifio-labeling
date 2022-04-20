@@ -58,7 +58,7 @@ public class E01_LoadLabeling {
     public void loadBasicLabeling() throws IOException {
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        // load a bson file with IntType labels
+        // load a JSON file with IntType labels
         // the container contains an ImgLabeling of that type as well as an optional sourcemap
         // the sourcemap is a mapping of a source img to a list of labels that where contained in it and added to 
         // the ImgLabeling

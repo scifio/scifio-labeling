@@ -43,8 +43,8 @@ import java.util.function.LongFunction;
 import java.util.function.ToLongFunction;
 
 /**
- * A service to easily access a load/save functionality for BSON-based labeling data files.
- * Basic support for primitive types and BSON standard types is already included. For non-primitive types,
+ * A service to easily access a load/save functionality for JSON-based labeling data files.
+ * Basic support for primitive types and JSON standard types is already included. For non-primitive types,
  * a codec must be set and the class must be given as an argument to the methods.
  *
  * @author Tom Burke
@@ -57,7 +57,7 @@ public interface LabelingIOService extends ImageJService {
 
     /**
      * Load a labeling container from the given file path as string.
-     * The file path must point to the bson file containing the labeling data.
+     * The file path must point to the JSON file containing the labeling data.
      *
      * @param file          The path to the file
      * @param metadataType the metadata class
@@ -71,7 +71,7 @@ public interface LabelingIOService extends ImageJService {
 
     /**
      * Load a labeling container from the given file path as string.
-     * The file path must point to the bson file containing the labeling data.
+     * The file path must point to the JSON file containing the labeling data.
      *
      * @param file          The path to the file
      * @param idToLabel     a function transforming the label of type T into something else
@@ -85,7 +85,7 @@ public interface LabelingIOService extends ImageJService {
     <S, T, I extends IntegerType<I>> Container<S, T, I> loadWithMetadata(String file, LongFunction<T> idToLabel, Class<S> metadataClazz) throws IOException;
 
     /**
-     * Save an ImgLabelingContainer in the file-path, transforming it into a bson file and an image.
+     * Save an ImgLabelingContainer in the file-path, transforming it into a JSON file and an image.
      * The path must contain the filename (ending does not matter).
      *
      * @param imgLabeling the imglabeling object that needs to be serialized
@@ -97,7 +97,7 @@ public interface LabelingIOService extends ImageJService {
     <S, T, I extends IntegerType<I>> void saveWithMetaData(ImgLabeling<T, I> imgLabeling, String file, S metadata) throws IOException;
 
     /**
-     * Save an ImgLabelingContainer in the file-path, transforming it into a bson file and an image.
+     * Save an ImgLabelingContainer in the file-path, transforming it into a JSON file and an image.
      * The path must contain the filename (ending does not matter).
      *
      * @param imgLabeling the imglabeling object that needs to be serialized

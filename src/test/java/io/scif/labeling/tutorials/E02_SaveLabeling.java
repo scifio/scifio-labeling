@@ -81,8 +81,8 @@ public class E02_SaveLabeling {
         ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
         Container<Map, Integer, UnsignedByteType> container = new Container<>();
         container.setImgLabeling(labeling);
-        // if you want to store metadata as a map, make sure that their are codecs for every value, or wrap them in BsonValues
-        // also, the key of the map must be string. If you need anything else, implement your own map codec
+        // If you want to store metadata as a map, make sure that their are codecs for every value.
+        // Also, the key of the map must be string. If you need anything else, implement your own map codec.
         Map<String, Integer> sources = new HashMap<>();
         sources.put("one", 1);
         sources.put("two", 2);
