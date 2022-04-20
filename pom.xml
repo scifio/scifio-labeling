@@ -14,7 +14,7 @@
 	<version>0.3.0-SNAPSHOT</version>
 
 	<name>SCIFIO Labeling</name>
-	<description>IO interfaces for labeling data in ImgLib2.</description>
+	<description>I/O interfaces for ImgLib2 labelings.</description>
 	<url>https://github.com/scifio/Labeling</url>
 	<inceptionYear>2020</inceptionYear>
 	<organization>
