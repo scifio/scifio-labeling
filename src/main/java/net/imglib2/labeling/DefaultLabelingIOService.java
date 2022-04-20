@@ -50,7 +50,6 @@ import org.scijava.Context;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.service.AbstractService;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -90,7 +89,7 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
 
     @Override
     public <S, T, I extends IntegerType<I>> Container<S, T, I> loadWithMetadata(String file, LongFunction<T> idToLabel, Class<S> metadataClazz) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -114,7 +113,7 @@ public class DefaultLabelingIOService extends AbstractService implements Labelin
 
     @Override
     public <S, T, I extends IntegerType<I>> void saveWithMetaData(ImgLabeling<T, I> imgLabeling, String file, ToLongFunction<T> labelToId, S metadata) throws IOException {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     private <T, I extends IntegerType<I>> ImgLabeling<T, I> getImgLabeling(String file, Type typeToken) throws IOException {
