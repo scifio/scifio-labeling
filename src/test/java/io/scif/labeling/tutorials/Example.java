@@ -1,13 +1,8 @@
 /*-
  * #%L
- * ImgLib2: a general-purpose, multidimensional image processing library.
+ * SCIFIO library for reading and converting scientific file formats.
  * %%
- * Copyright (C) 2020 - 2021 Tobias Pietzsch, Stephan Preibisch, Stephan Saalfeld,
- *             John Bogovic, Albert Cardona, Barry DeZonia, Christian Dietz, Jan Funke,
- *             Aivar Grislis, Jonathan Hale, Grant Harris, Stefan Helfrich, Mark Hiner,
- *             Martin Horn, Steffen Jaensch, Lee Kamentsky, Larry Lindsey, Melissa Linkert,
- *             Mark Longair, Brian Northan, Nick Perry, Curtis Rueden, Johannes Schindelin,
- *             Jean-Yves Tinevez and Michael Zinsmaier.
+ * Copyright (C) 2020 - 2022 SCIFIO developers.
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,46 +26,43 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package net.imglib2.labeling.tutorials;
+
+package io.scif.labeling.tutorials;
 
 import java.util.Objects;
 
 class Example implements Comparable<Example> {
 
-    String a;
+	String a;
 
-    double b;
+	double b;
 
-    int c;
+	int c;
 
-    public Example() {
-    }
+	public Example() {}
 
-    public Example(String a, double b, int c) {
-        this.a = a;
-        this.b = b;
-        this.c = c;
-    }
+	public Example(final String a, final double b, final int c) {
+		this.a = a;
+		this.b = b;
+		this.c = c;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o == null || getClass() != o.getClass())
-            return false;
-        Example example = (Example) o;
-        return Double.compare(example.b, b) == 0 &&
-                c == example.c &&
-                Objects.equals(a, example.a);
-    }
+	@Override
+	public boolean equals(final Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		final Example example = (Example) o;
+		return Double.compare(example.b, b) == 0 && c == example.c && Objects
+			.equals(a, example.a);
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(a, b, c);
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(a, b, c);
+	}
 
-    @Override
-    public int compareTo(Example o) {
-        return this.equals(o) ? 0 : 1;
-    }
+	@Override
+	public int compareTo(final Example o) {
+		return this.equals(o) ? 0 : 1;
+	}
 }

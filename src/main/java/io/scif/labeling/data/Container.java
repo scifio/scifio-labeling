@@ -1,13 +1,8 @@
 /*-
  * #%L
- * ImgLib2: a general-purpose, multidimensional image processing library.
+ * SCIFIO library for reading and converting scientific file formats.
  * %%
- * Copyright (C) 2020 - 2021 Tobias Pietzsch, Stephan Preibisch, Stephan Saalfeld,
- *             John Bogovic, Albert Cardona, Barry DeZonia, Christian Dietz, Jan Funke,
- *             Aivar Grislis, Jonathan Hale, Grant Harris, Stefan Helfrich, Mark Hiner,
- *             Martin Horn, Steffen Jaensch, Lee Kamentsky, Larry Lindsey, Melissa Linkert,
- *             Mark Longair, Brian Northan, Nick Perry, Curtis Rueden, Johannes Schindelin,
- *             Jean-Yves Tinevez and Michael Zinsmaier.
+ * Copyright (C) 2020 - 2022 SCIFIO developers.
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,29 +26,30 @@
  * POSSIBILITY OF SUCH DAMAGE.
  * #L%
  */
-package net.imglib2.labeling.data;
+
+package io.scif.labeling.data;
 
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.IntegerType;
 
 public class Container<S, T, I extends IntegerType<I>> {
 
-    ImgLabeling<T, I> imgLabeling;
-    S metadata;
+	ImgLabeling<T, I> imgLabeling;
+	S metadata;
 
-    public ImgLabeling<T, I> getImgLabeling() {
-        return imgLabeling;
-    }
+	public ImgLabeling<T, I> getImgLabeling() {
+		return imgLabeling;
+	}
 
-    public void setImgLabeling(ImgLabeling<T, I> imgLabeling) {
-        this.imgLabeling = imgLabeling;
-    }
+	public void setImgLabeling(final ImgLabeling<T, I> imgLabeling) {
+		this.imgLabeling = imgLabeling;
+	}
 
-    public S getMetadata() {
-        return metadata;
-    }
+	public S getMetadata() {
+		return metadata;
+	}
 
-    public void setMetadata(S metadata) {
-        this.metadata = metadata;
-    }
+	public void setMetadata(final S metadata) {
+		this.metadata = metadata;
+	}
 }
