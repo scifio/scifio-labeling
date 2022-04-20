@@ -1,140 +1,140 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+	<modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.scijava</groupId>
-        <artifactId>pom-scijava</artifactId>
-        <version>30.0.0</version>
-        <relativePath/>
-    </parent>
+	<parent>
+		<groupId>org.scijava</groupId>
+		<artifactId>pom-scijava</artifactId>
+		<version>30.0.0</version>
+		<relativePath/>
+	</parent>
 
-    <groupId>io.scif</groupId>
-    <artifactId>labeling</artifactId>
-    <version>0.2.3-SNAPSHOT</version>
+	<groupId>io.scif</groupId>
+	<artifactId>labeling</artifactId>
+	<version>0.2.3-SNAPSHOT</version>
 
-    <name>SCIFIO Labeling</name>
-    <description>IO interfaces for labeling data in ImgLib2.</description>
-    <url>https://github.com/scifio/Labeling</url>
-    <inceptionYear>2020</inceptionYear>
-    <organization>
-        <name>SCIFIO</name>
-        <url>https://scif.io/</url>
-    </organization>
-    <licenses>
-        <license>
-            <name>Simplified BSD License</name>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
+	<name>SCIFIO Labeling</name>
+	<description>IO interfaces for labeling data in ImgLib2.</description>
+	<url>https://github.com/scifio/Labeling</url>
+	<inceptionYear>2020</inceptionYear>
+	<organization>
+		<name>SCIFIO</name>
+		<url>https://scif.io/</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>Simplified BSD License</name>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
 
-    <mailingLists>
-        <mailingList>
-            <name>Image.sc Forum</name>
-            <archive>https://forum.image.sc/tag/scifio</archive>
-        </mailingList>
-    </mailingLists>
+	<mailingLists>
+		<mailingList>
+			<name>Image.sc Forum</name>
+			<archive>https://forum.image.sc/tag/scifio</archive>
+		</mailingList>
+	</mailingLists>
 
-    <scm>
-        <connection>scm:git:git://github.com/scifio/Labeling</connection>
-        <developerConnection>scm:git:git@github.com:scifio/Labeling</developerConnection>
-        <tag>HEAD</tag>
-        <url>https://github.com/scifio/Labeling</url>
-    </scm>
-    <issueManagement>
-        <system>GitHub</system>
-        <url>https://github.com/scifio/Labeling/issues</url>
-    </issueManagement>
-    <ciManagement>
-        <system>GitHub Actions</system>
-        <url>https://github.com/scifio/Labeling/actions</url>
-    </ciManagement>
+	<scm>
+		<connection>scm:git:git://github.com/scifio/Labeling</connection>
+		<developerConnection>scm:git:git@github.com:scifio/Labeling</developerConnection>
+		<tag>HEAD</tag>
+		<url>https://github.com/scifio/Labeling</url>
+	</scm>
+	<issueManagement>
+		<system>GitHub</system>
+		<url>https://github.com/scifio/Labeling/issues</url>
+	</issueManagement>
+	<ciManagement>
+		<system>GitHub Actions</system>
+		<url>https://github.com/scifio/Labeling/actions</url>
+	</ciManagement>
 
-    <properties>
-        <package-name>io.scif.roi.io</package-name>
-        <imglib2-roi.version>0.11.0</imglib2-roi.version>
-        <license.licenseName>bsd_2</license.licenseName>
-        <license.copyrightOwners>SCIFIO developers.</license.copyrightOwners>
-        <license.projectName>SCIFIO library for reading and converting scientific file formats.</license.projectName>
+	<properties>
+		<package-name>io.scif.roi.io</package-name>
+		<imglib2-roi.version>0.11.0</imglib2-roi.version>
+		<license.licenseName>bsd_2</license.licenseName>
+		<license.copyrightOwners>SCIFIO developers.</license.copyrightOwners>
+		<license.projectName>SCIFIO library for reading and converting scientific file formats.</license.projectName>
 
-        <!-- NB: Deploy releases to the SciJava Maven repository. -->
-        <releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
-    </properties>
+		<!-- NB: Deploy releases to the SciJava Maven repository. -->
+		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
+	</properties>
 
-    <developers>
-        <developer>
-            <id>tomburke-rse</id>
-            <name>Tom Burke</name>
-            <roles>
-                <role>lead</role>
-                <role>developer</role>
-                <role>debugger</role>
-                <role>reviewer</role>
-                <role>support</role>
-                <role>maintainer</role>
-            </roles>
-        </developer>
-    </developers>
-    <contributors>
-        <contributor>
-            <name>Tom Burke</name>
-            <email>burke@mpi-cbg.de</email>
-            <organization>MPI-CBG/CSBD</organization>
-        </contributor>
-    </contributors>
+	<developers>
+		<developer>
+			<id>tomburke-rse</id>
+			<name>Tom Burke</name>
+			<roles>
+				<role>lead</role>
+				<role>developer</role>
+				<role>debugger</role>
+				<role>reviewer</role>
+				<role>support</role>
+				<role>maintainer</role>
+			</roles>
+		</developer>
+	</developers>
+	<contributors>
+		<contributor>
+			<name>Tom Burke</name>
+			<email>burke@mpi-cbg.de</email>
+			<organization>MPI-CBG/CSBD</organization>
+		</contributor>
+	</contributors>
 
-    <repositories>
-        <!-- NB: for SciJava dependencies -->
-        <repository>
-            <id>scijava.public</id>
-            <url>https://maven.scijava.org/content/groups/public</url>
-        </repository>
-    </repositories>
+	<repositories>
+		<!-- NB: for SciJava dependencies -->
+		<repository>
+			<id>scijava.public</id>
+			<url>https://maven.scijava.org/content/groups/public</url>
+		</repository>
+	</repositories>
 
-    <dependencies>
-        <!-- ImgLib2 dependencies -->
-        <dependency>
-            <groupId>net.imglib2</groupId>
-            <artifactId>imglib2-roi</artifactId>
-            <version>${imglib2-roi.version}</version>
-        </dependency>
+	<dependencies>
+		<!-- ImgLib2 dependencies -->
+		<dependency>
+			<groupId>net.imglib2</groupId>
+			<artifactId>imglib2-roi</artifactId>
+			<version>${imglib2-roi.version}</version>
+		</dependency>
 
-        <!-- Other dependencies -->
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>${gson.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.scif</groupId>
-            <artifactId>scifio</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.scijava</groupId>
-            <artifactId>scijava-common</artifactId>
-        </dependency>
+		<!-- Other dependencies -->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>${gson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.scif</groupId>
+			<artifactId>scifio</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.scijava</groupId>
+			<artifactId>scijava-common</artifactId>
+		</dependency>
 
-        <!-- Test dependencies -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.scijava</groupId>
-            <artifactId>junit-benchmarks</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-core</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-generator-annprocess</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
+		<!-- Test dependencies -->
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.scijava</groupId>
+			<artifactId>junit-benchmarks</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openjdk.jmh</groupId>
+			<artifactId>jmh-core</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.openjdk.jmh</groupId>
+			<artifactId>jmh-generator-annprocess</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 </project>
