@@ -11,13 +11,13 @@
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
- * 
+ *
  * 1. Redistributions of source code must retain the above copyright notice,
  *    this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright notice,
  *    this list of conditions and the following disclaimer in the documentation
  *    and/or other materials provided with the distribution.
- * 
+ *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
@@ -40,7 +40,6 @@ import net.imglib2.labeling.data.Container;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
-import org.bson.codecs.MapCodec;
 import org.junit.Before;
 import org.junit.Test;
 import org.scijava.Context;
@@ -73,13 +72,12 @@ public class E02_SaveLabeling {
         ImgLabeling<Example, IntType> labeling = getComplexImgLabeling();
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        labelingIOService.save(labeling, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath(), Example.class, new ExampleCodec());
+        labelingIOService.save(labeling, new File("src/test/resources/labeling/labelSaveTestComplex.tif").getAbsolutePath());
 
     }
 
-
     @Test
-    public void saveLabelingWithMetaDataTest() {
+    public void saveLabelingWithMetaDataTest() throws IOException {
         ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
         Container<Map, Integer, UnsignedByteType> container = new Container<>();
         container.setImgLabeling(labeling);
@@ -94,10 +92,9 @@ public class E02_SaveLabeling {
 
         // get the LabelingIO service from the context
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        labelingIOService.saveWithMetaData(container, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath(), Map.class, new MapCodec());
+        labelingIOService.saveWithMetaData(labeling, new File("src/test/resources/labeling/labelSaveTestSimpleMeta.tif").getAbsolutePath(), sources);
 
     }
-
 
     private ImgLabeling<Integer, UnsignedByteType> getSimpleImgLabeling() {
         Integer[] values1 = new Integer[]{42, 13};
