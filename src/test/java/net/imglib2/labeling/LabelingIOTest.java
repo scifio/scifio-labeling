@@ -39,7 +39,6 @@ import net.imglib2.img.Img;
 import net.imglib2.img.array.ArrayImgs;
 import net.imglib2.labeling.data.Container;
 import net.imglib2.labeling.data.LabelingData;
-import net.imglib2.labeling.data.TypeTokenWrapper;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
@@ -67,20 +66,18 @@ public class LabelingIOTest {
     @Test
     public void testEquality() throws IOException {
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        Type type = new TypeTokenWrapper<LabelingData<Integer, Object>>() {}.getType();
-        ImgLabeling imgLabeling = labelingIOService.load("src/test/resources/labeling/labelSaveTestSimple",type);
+        ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load("src/test/resources/labeling/labelSaveTestSimple", Integer.class, IntType.class);
         labelingIOService.save(imgLabeling, "src/test/resources/labeling/example1_sav");
-        ImgLabeling imgLabeling2 = labelingIOService.load("src/test/resources/labeling/example1_sav", type);
+        ImgLabeling<Integer, IntType> imgLabeling2 = labelingIOService.load("src/test/resources/labeling/example1_sav", Integer.class, IntType.class);
         Assert.assertEquals(imgLabeling.getMapping().getLabels(), imgLabeling2.getMapping().getLabels());
     }
 
     @Test
     public void testEquality2() throws IOException {
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        Type type = new TypeTokenWrapper<LabelingData<Integer, Object>>() {}.getType();
-        ImgLabeling imgLabeling = labelingIOService.load("src/test/resources/labeling/test", type);
+        ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load("src/test/resources/labeling/test", Integer.class, IntType.class);
         labelingIOService.save(imgLabeling, "src/test/resources/labeling/test2");
-        ImgLabeling imgLabeling2 = labelingIOService.load("src/test/resources/labeling/test2", type);
+        ImgLabeling<Integer, IntType> imgLabeling2 = labelingIOService.load("src/test/resources/labeling/test2", Integer.class, IntType.class);
         Assert.assertEquals(imgLabeling.getMapping().getLabels(), imgLabeling2.getMapping().getLabels());
     }
 
@@ -90,10 +87,10 @@ public class LabelingIOTest {
         context.getService(LabelingIOService.class).saveWithMetaData(labeling, new File("src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath(), new Example("a", 2.0, 1));
     }
 
-
     @Test
     public void loadLabelingWithMetadataPrimitiveTest() throws IOException {
-        Container<Example, Integer, IntType> container = context.getService(LabelingIOService.class).loadWithMetadata("src/test/resources/labeling/labelSaveTestSimpleMeta.tif", Example.class , new TypeTokenWrapper<LabelingData<Example, Example>>() {}.getType());
+        Container<Example, Integer, IntType>
+            container = context.getService(LabelingIOService.class).loadWithMetadata("src/test/resources/labeling/labelSaveTestSimpleMeta.tif", Example.class, Integer.class, IntType.class);
         ImgLabeling<Integer, IntType> mapping = container.getImgLabeling();
         Example e = container.getMetadata();
         Assert.assertNotNull(e);
@@ -110,20 +107,18 @@ public class LabelingIOTest {
     @Test
     public void loadLabelingWithMetadataComplexWithCodecTest() throws IOException {
         LabelingIOService labelingIOService = context.getService(LabelingIOService.class);
-        Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplexMeta", Example.class, new TypeTokenWrapper<LabelingData<Example, Example>>() {}.getType());
+        Container<Example, Example, IntType> container = labelingIOService.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplexMeta", Example.class, Example.class, IntType.class);
         ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
         Example e = container.getMetadata();
         Assert.assertNotNull(e);
         Assert.assertEquals(getComplexImgLabeling().getMapping().getLabels(), mapping.getMapping().getLabels());
-
-
     }
 
     @Test
     public void t() throws IOException {
         GsonBuilder builder = new GsonBuilder();
-        Type labelingDataType = new TypeToken<LabelingData<Example,Example>>() {}.getType();
         Reader reader = Files.newBufferedReader(Paths.get("src/test/resources/labeling/labelSaveTestComplexMeta.lbl.json"));
+        Type labelingDataType = new TypeToken<LabelingData<Example,Example>>() {}.getType();
         LabelingData<Example,Example> labelingData = builder.create().fromJson(reader, labelingDataType);
     }
 
