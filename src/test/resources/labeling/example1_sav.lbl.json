@@ -1,1 +1,1 @@
-{"version":3,"numSets":4,"numSources":1,"indexImg":"example1_sav.tif","labelSets":{"0":[],"1":[42,13],"2":[1],"3":[42,13,1]}}
+{"version":3,"numSets":4,"numSources":1,"indexImg":"example1_sav.tif","labelMapping":{},"labelSets":{"0":[],"1":[42,13],"2":[1],"3":[42,13,1]}}
