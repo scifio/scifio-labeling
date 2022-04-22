@@ -11,7 +11,7 @@
 
 	<groupId>io.scif</groupId>
 	<artifactId>scifio-labeling</artifactId>
-	<version>0.3.1-SNAPSHOT</version>
+	<version>0.3.1</version>
 
 	<name>SCIFIO Labeling</name>
 	<description>I/O interfaces for ImgLib2 labelings.</description>
@@ -70,7 +70,7 @@
 	<scm>
 		<connection>scm:git:git://github.com/scifio/scifio-labeling</connection>
 		<developerConnection>scm:git:git@github.com:scifio/scifio-labeling</developerConnection>
-		<tag>HEAD</tag>
+		<tag>scifio-labeling-0.3.1</tag>
 		<url>https://github.com/scifio/scifio-labeling</url>
 	</scm>
 	<issueManagement>
