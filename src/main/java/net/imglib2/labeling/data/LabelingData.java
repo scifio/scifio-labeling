@@ -31,6 +31,7 @@ package net.imglib2.labeling.data;
 
 import com.google.gson.Gson;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -41,8 +42,8 @@ public class LabelingData<T, S> {
 	private int numSets = 0;
 	private int numSources = 0;
 	private String indexImg;
-	private Map<Integer, T> labelMapping;
-	private Map<String, Set<Integer>> labelSets;
+	private Map<Integer, T> labelMapping = Collections.emptyMap();
+	private Map<String, Set<Integer>> labelSets = Collections.emptyMap();
 	private S metadata;
 
 	public int getVersion() {
