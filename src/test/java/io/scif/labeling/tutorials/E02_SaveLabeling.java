@@ -34,6 +34,7 @@ import io.scif.labeling.data.Container;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -67,8 +68,7 @@ public class E02_SaveLabeling {
 		// get the LabelingIO service from the context
 		final LabelingIOService labelingIOService = context.getService(
 			LabelingIOService.class);
-		labelingIOService.save(labeling, new File(
-			"src/test/resources/labeling/labelSaveTestSimple.tif").getAbsolutePath());
+		labelingIOService.save(labeling, Files.createTempFile(null, null).toString());
 
 	}
 
@@ -78,9 +78,7 @@ public class E02_SaveLabeling {
 		// get the LabelingIO service from the context
 		final LabelingIOService labelingIOService = context.getService(
 			LabelingIOService.class);
-		labelingIOService.save(labeling, new File(
-			"src/test/resources/labeling/labelSaveTestComplex.tif")
-				.getAbsolutePath());
+		labelingIOService.save(labeling, Files.createTempFile(null, null).toString());
 
 	}
 
@@ -105,9 +103,7 @@ public class E02_SaveLabeling {
 		// get the LabelingIO service from the context
 		final LabelingIOService labelingIOService = context.getService(
 			LabelingIOService.class);
-		labelingIOService.saveWithMetaData(labeling, new File(
-			"src/test/resources/labeling/labelSaveTestSimpleMeta.tif")
-				.getAbsolutePath(), sources);
+		labelingIOService.saveWithMetaData(labeling, Files.createTempFile(null, null).toString(), sources);
 
 	}
 
