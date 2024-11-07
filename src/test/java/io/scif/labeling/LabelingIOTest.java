@@ -39,6 +39,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -53,18 +54,24 @@ import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.scijava.Context;
 
 public class LabelingIOTest {
 
-	Context context;
+	private static Context context;
 
-	@Before
-	public void beforeTests() {
+	@BeforeClass
+	public static void setUp() {
 		context = new Context();
+	}
+
+	@AfterClass
+	public static void tearDown() {
+		context.dispose();
 	}
 
 	@Test
@@ -74,10 +81,10 @@ public class LabelingIOTest {
 		final ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load(
 			"src/test/resources/labeling/labelSaveTestSimple", Integer.class,
 			IntType.class);
-		labelingIOService.save(imgLabeling,
-			"src/test/resources/labeling/example1_sav");
+		Path tempFile = mktemp();
+		labelingIOService.save(imgLabeling, tempFile.toString());
 		final ImgLabeling<Integer, IntType> imgLabeling2 = labelingIOService.load(
-			"src/test/resources/labeling/example1_sav", Integer.class, IntType.class);
+				tempFile.toString(), Integer.class, IntType.class);
 		Assert.assertEquals(imgLabeling.getMapping().getLabels(), imgLabeling2
 			.getMapping().getLabels());
 	}
@@ -88,9 +95,10 @@ public class LabelingIOTest {
 			LabelingIOService.class);
 		final ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load(
 			"src/test/resources/labeling/test", Integer.class, IntType.class);
-		labelingIOService.save(imgLabeling, "src/test/resources/labeling/test2");
+		Path tempFile = mktemp();
+		labelingIOService.save(imgLabeling, tempFile.toString());
 		final ImgLabeling<Integer, IntType> imgLabeling2 = labelingIOService.load(
-			"src/test/resources/labeling/test2", Integer.class, IntType.class);
+				tempFile.toString(), Integer.class, IntType.class);
 		Assert.assertEquals(imgLabeling.getMapping().getLabels(), imgLabeling2
 			.getMapping().getLabels());
 	}
@@ -100,8 +108,7 @@ public class LabelingIOTest {
 		final ImgLabeling<Integer, UnsignedByteType> labeling =
 			getSimpleImgLabeling();
 		context.getService(LabelingIOService.class).saveWithMetaData(labeling,
-			new File("src/test/resources/labeling/labelSaveTestSimple.tif")
-				.getAbsolutePath(), new Example("a", 2.0, 1));
+				mktemp().toString(), new Example("a", 2.0, 1));
 	}
 
 	@Test
@@ -122,9 +129,8 @@ public class LabelingIOTest {
 		final ImgLabeling<Example, IntType> labeling = getComplexImgLabeling();
 		final LabelingIOService labelingIOService = context.getService(
 			LabelingIOService.class);
-		labelingIOService.saveWithMetaData(labeling, new File(
-			"src/test/resources/labeling/labelSaveTestComplexMeta.tif")
-				.getAbsolutePath(), new Example("a", 2.0, 1));
+		labelingIOService.saveWithMetaData(labeling, mktemp().toString(),
+				new Example("a", 2.0, 1));
 	}
 
 	@Test
@@ -141,18 +147,6 @@ public class LabelingIOTest {
 		Assert.assertNotNull(e);
 		Assert.assertEquals(getComplexImgLabeling().getMapping().getLabels(),
 			mapping.getMapping().getLabels());
-	}
-
-	@Test
-	public void t() throws IOException {
-		final GsonBuilder builder = new GsonBuilder();
-		final Reader reader = Files.newBufferedReader(Paths.get(
-			"src/test/resources/labeling/labelSaveTestComplexMeta.lbl.json"));
-		final Type labelingDataType =
-			new TypeToken<LabelingData<Example, Example>>()
-			{}.getType();
-		final LabelingData<Example, Example> labelingData = builder.create()
-			.fromJson(reader, labelingDataType);
 	}
 
 	private ImgLabeling<Integer, UnsignedByteType> getSimpleImgLabeling() {
@@ -219,4 +213,9 @@ public class LabelingIOTest {
 		}
 	}
 
+	public static Path mktemp() throws IOException {
+		Path tempFile = Files.createTempFile(null, null);
+		tempFile.toFile().deleteOnExit();
+		return tempFile;
+	}
 }
