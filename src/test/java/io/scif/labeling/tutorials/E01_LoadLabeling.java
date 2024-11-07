@@ -37,49 +37,47 @@ import java.io.IOException;
 import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.integer.IntType;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.scijava.Context;
 
 public class E01_LoadLabeling {
 
-	Context context;
+	private static Context context;
 
-	@Before
-	public void beforeTests() {
+	@BeforeClass
+	public static void setUp() {
 		context = new Context();
+	}
+
+	@AfterClass
+	public static void tearDown() {
+		context.dispose();
 	}
 
 	@Test
 	public void loadBasicLabeling() throws IOException {
-		// get the LabelingIO service from the context
-		final LabelingIOService labelingIOService = context.getService(
-			LabelingIOService.class);
-		// load a JSON file with IntType labels
-		// the container contains an ImgLabeling of that type as well as an optional
-		// sourcemap
-		// the sourcemap is a mapping of a source img to a list of labels that where
-		// contained in it and added to
-		// the ImgLabeling
-
-		final ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load(
-			"src/test/resources/labeling/labelSaveTestSimple.lbl.json", Integer.class,
-			IntType.class);
+		final LabelingIOService labelingIOService = context.service(LabelingIOService.class);
+		// Load a JSON file with IntType labels.
+		// The container contains an ImgLabeling of that type as well as an
+		// optional sourcemap. The sourcemap is a mapping of a source img to a
+		// list of labels that were contained in it and added to the ImgLabeling.
+		String inPath = "src/test/resources/labeling/labelSaveTestSimple.lbl.json";
+		final ImgLabeling<Integer, IntType> imgLabeling =
+			labelingIOService.load(inPath, Integer.class, IntType.class);
 		Assert.assertNotNull(imgLabeling);
 		Assert.assertNotNull(imgLabeling.getIndexImg());
 		Assert.assertFalse(imgLabeling.getMapping().getLabels().isEmpty());
-
 	}
 
 	@Test
 	public void loadClassBasedLabeling() throws IOException {
-		// get the LabelingIO service from the context
-		final LabelingIOService labelingIOService = context.getService(
-			LabelingIOService.class);
-		final Container<Example, Example, IntType> container = labelingIOService
-			.loadWithMetadata("src/test/resources/labeling/labelSaveTestComplex",
-				Example.class, Example.class, IntType.class);
+		final LabelingIOService labelingIOService = context.service(LabelingIOService.class);
+		final String inPath = "src/test/resources/labeling/labelSaveTestComplex";
+		final Container<Example, Example, IntType> container =
+			labelingIOService.loadWithMetadata(inPath, Example.class, Example.class, IntType.class);
 		final ImgLabeling<Example, IntType> mapping = container.getImgLabeling();
 		Assert.assertNotNull(mapping);
 	}

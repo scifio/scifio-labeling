@@ -35,6 +35,7 @@ import io.scif.labeling.data.Container;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -48,37 +49,40 @@ import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.scijava.Context;
 
 public class E02_SaveLabeling {
 
-	Context context;
+	private static Context context;
 
-	@Before
-	public void beforeTests() {
+	@BeforeClass
+	public static void setUp() {
 		context = new Context();
+	}
+
+	@AfterClass
+	public static void tearDown() {
+		context.dispose();
 	}
 
 	@Test
 	public void saveLabelingTest() throws IOException {
-		final ImgLabeling<Integer, UnsignedByteType> labeling =
-			getSimpleImgLabeling();
-		// get the LabelingIO service from the context
-		final LabelingIOService labelingIOService = context.getService(
-			LabelingIOService.class);
-		labelingIOService.save(labeling, Files.createTempFile(null, null).toString());
+		final ImgLabeling<Integer, UnsignedByteType> labeling = getSimpleImgLabeling();
+		Path outFile = Files.createTempFile(null, null);
+		final LabelingIOService labelingIOService = context.service(LabelingIOService.class);
+		labelingIOService.save(labeling, outFile.toString());
 
 	}
 
 	@Test
 	public void saveLabelingTest2() throws IOException {
 		final ImgLabeling<Example, IntType> labeling = getComplexImgLabeling();
-		// get the LabelingIO service from the context
-		final LabelingIOService labelingIOService = context.getService(
-			LabelingIOService.class);
-		labelingIOService.save(labeling, Files.createTempFile(null, null).toString());
+		Path outFile = Files.createTempFile(null, null);
+		final LabelingIOService labelingIOService = context.service(LabelingIOService.class);
+		labelingIOService.save(labeling, outFile.toString());
 
 	}
 
@@ -100,10 +104,9 @@ public class E02_SaveLabeling {
 
 		container.setMetadata(sources);
 
-		// get the LabelingIO service from the context
-		final LabelingIOService labelingIOService = context.getService(
-			LabelingIOService.class);
-		labelingIOService.saveWithMetaData(labeling, Files.createTempFile(null, null).toString(), sources);
+		Path outFile = Files.createTempFile(null, null);
+		final LabelingIOService labelingIOService = context.service(LabelingIOService.class);
+		labelingIOService.saveWithMetaData(labeling, outFile.toString(), sources);
 
 	}
 

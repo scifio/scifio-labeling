@@ -54,18 +54,24 @@ import net.imglib2.roi.labeling.ImgLabeling;
 import net.imglib2.type.numeric.integer.IntType;
 import net.imglib2.type.numeric.integer.UnsignedByteType;
 
+import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.scijava.Context;
 
 public class LabelingIOTest {
 
-	Context context;
+	private static Context context;
 
-	@Before
-	public void beforeTests() {
+	@BeforeClass
+	public static void setUp() {
 		context = new Context();
+	}
+
+	@AfterClass
+	public static void tearDown() {
+		context.dispose();
 	}
 
 	@Test
@@ -75,7 +81,7 @@ public class LabelingIOTest {
 		final ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load(
 			"src/test/resources/labeling/labelSaveTestSimple", Integer.class,
 			IntType.class);
-		Path tempFile = Files.createTempFile(null, null);
+		Path tempFile = mktemp();
 		labelingIOService.save(imgLabeling, tempFile.toString());
 		final ImgLabeling<Integer, IntType> imgLabeling2 = labelingIOService.load(
 				tempFile.toString(), Integer.class, IntType.class);
@@ -89,7 +95,7 @@ public class LabelingIOTest {
 			LabelingIOService.class);
 		final ImgLabeling<Integer, IntType> imgLabeling = labelingIOService.load(
 			"src/test/resources/labeling/test", Integer.class, IntType.class);
-		Path tempFile = Files.createTempFile(null, null);
+		Path tempFile = mktemp();
 		labelingIOService.save(imgLabeling, tempFile.toString());
 		final ImgLabeling<Integer, IntType> imgLabeling2 = labelingIOService.load(
 				tempFile.toString(), Integer.class, IntType.class);
@@ -102,7 +108,7 @@ public class LabelingIOTest {
 		final ImgLabeling<Integer, UnsignedByteType> labeling =
 			getSimpleImgLabeling();
 		context.getService(LabelingIOService.class).saveWithMetaData(labeling,
-				Files.createTempFile(null, null).toString(), new Example("a", 2.0, 1));
+				mktemp().toString(), new Example("a", 2.0, 1));
 	}
 
 	@Test
@@ -123,7 +129,7 @@ public class LabelingIOTest {
 		final ImgLabeling<Example, IntType> labeling = getComplexImgLabeling();
 		final LabelingIOService labelingIOService = context.getService(
 			LabelingIOService.class);
-		labelingIOService.saveWithMetaData(labeling, Files.createTempFile(null, null).toString(),
+		labelingIOService.saveWithMetaData(labeling, mktemp().toString(),
 				new Example("a", 2.0, 1));
 	}
 
@@ -207,4 +213,9 @@ public class LabelingIOTest {
 		}
 	}
 
+	public static Path mktemp() throws IOException {
+		Path tempFile = Files.createTempFile(null, null);
+		tempFile.toFile().deleteOnExit();
+		return tempFile;
+	}
 }
