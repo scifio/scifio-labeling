@@ -257,9 +257,7 @@ public class DefaultLabelingIOService extends AbstractService implements
 	{
 		final Writer writer = new FileWriter(LabelingUtil.getFilePathWithExtension(
 			file, LabelingUtil.LBL_ENDING, Paths.get(file).getParent().toString()));
-		final Type labelingDataType = new TypeToken<LabelingData<T, S>>() {}
-			.getType();
-		this.gson.toJson(labelingData, labelingDataType, writer);
+		this.gson.toJson(labelingData, LabelingData.class, writer);
 		writer.flush();
 		writer.close();
 	}
