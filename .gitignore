@@ -1,5 +1,6 @@
 # Eclipse metadata
 /.classpath
+/.factorypath
 /.project
 /.settings/
 
